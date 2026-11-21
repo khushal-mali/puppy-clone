@@ -217,7 +217,7 @@ export default function Footer() {
             >
               <div
                 ref={buddyRef}
-                className="pup-buddy cursor-pointer"
+                className="pup-buddy"
                 data-facing="right"
                 style={{ visibility: 'visible', opacity: 1, pointerEvents: 'auto' }}
               >
