@@ -90,6 +90,8 @@ export default function Footer() {
             className="tp-basket relative cursor-pointer group"
             onMouseEnter={() => setIsTeddyHovered(true)}
             onMouseLeave={() => setIsTeddyHovered(false)}
+            onTouchStart={() => setIsTeddyHovered(true)}
+            onTouchEnd={() => setIsTeddyHovered(false)}
           >
             {/* Basket Back Rim & Shadow */}
             <svg aria-hidden="true" className="tp-basket__back" viewBox="0 0 300 240">
@@ -107,6 +109,8 @@ export default function Footer() {
               data-lane="true"
               data-pose="snug"
               {...(isHome ? { 'data-pup-stop': 'true' } : {})}
+              onMouseEnter={() => setIsTeddyHovered(true)}
+              onMouseLeave={() => setIsTeddyHovered(false)}
             >
               <div
                 className="pup-buddy"
@@ -180,7 +184,7 @@ export default function Footer() {
                         data-p="eyes"
                         transform="translate(0 0)"
                         className="transition-opacity duration-150 group-hover:opacity-0"
-                        style={{ opacity: isTeddyHovered ? 0 : 1 }}
+                        style={isTeddyHovered ? { opacity: 0 } : undefined}
                       >
                         <g data-p="open" opacity="1">
                           <g data-p="blink" transform="translate(0 0) scale(1 1)">
@@ -198,7 +202,7 @@ export default function Footer() {
                         data-p="happy"
                         fill="none"
                         className="transition-opacity duration-150 group-hover:opacity-100"
-                        style={{ opacity: isTeddyHovered ? 1 : 0 }}
+                        style={isTeddyHovered ? { opacity: 1 } : undefined}
                         stroke="#2a170e"
                         strokeLinecap="round"
                         strokeLinejoin="round"

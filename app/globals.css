@@ -188,22 +188,46 @@ html[data-pup] .pup-stop > .pup-buddy {
 }
 
 /* Ensure basket puppy in footer is always visible on interior pages */
+.tp-basket__pup,
 .tp-basket__pup .pup-buddy {
   visibility: visible !important;
   opacity: 1 !important;
   pointer-events: auto !important;
 }
 
-/* Hover effect on basket: eyes close into happy arcs (^ ^) */
+/* Default state for happy eyes */
+.tp-basket [data-p="happy"] {
+  opacity: 0;
+  transition: opacity 0.15s ease-in-out;
+}
+
+.tp-basket [data-p="eyes"] {
+  opacity: 1;
+  transition: opacity 0.15s ease-in-out;
+}
+
+/* Hover effect on basket or puppy: eyes close into happy arcs (^ ^) */
 .tp-basket:hover [data-p="eyes"],
 .tp-basket:hover [data-p="open"],
-.tp-basket:hover [data-p="shut"] {
+.tp-basket:hover [data-p="shut"],
+.tp-basket:hover [data-p="blink"],
+.tp-basket__pup:hover [data-p="eyes"],
+.tp-basket__pup:hover [data-p="open"],
+.tp-basket__pup:hover [data-p="shut"],
+.tp-basket__pup:hover [data-p="blink"],
+.group:hover [data-p="eyes"],
+.group:hover [data-p="open"],
+.group:hover [data-p="shut"],
+.group:hover [data-p="blink"] {
   opacity: 0 !important;
   animation: none !important;
 }
 
-.tp-basket:hover [data-p="happy"] {
+.tp-basket:hover [data-p="happy"],
+.tp-basket__pup:hover [data-p="happy"],
+.group:hover [data-p="happy"] {
   opacity: 1 !important;
+  visibility: visible !important;
   display: block !important;
 }
 
