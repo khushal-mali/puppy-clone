@@ -1,0 +1,188 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-milk: #fffdf8;
+  --color-cocoa: #2a170e;
+  --color-cocoa-soft: #5a3a28;
+  --color-honey: #f2be6b;
+  --color-honey-soft: #fbe3b4;
+  --color-toffee: #c2622b;
+  --color-toffee-deep: #a24a1a;
+  --color-toffee-ink: #8e3f15;
+  --color-blush: #f9cdbf;
+  --color-sky: #bfddf5;
+  --color-sky-deep: #2f6e9e;
+  --night: #24130b;
+
+  --header-h: 4.75rem;
+  --bar-h: 0px;
+  --gutter: clamp(1rem, 4vw, 3.5rem);
+
+  --ease-silk: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-pounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-snap: cubic-bezier(0.7, 0, 0.2, 1);
+}
+
+@media (max-width: 767px) {
+  :root {
+    --header-h: 4rem;
+    --bar-h: calc(4rem + env(safe-area-inset-bottom));
+  }
+}
+
+/* Custom Cursors on desktop */
+@media (hover: hover) and (pointer: fine) {
+  body {
+    cursor: url('/icons/cursor-paw.svg') 12 12, auto;
+  }
+  a, button, input[type='submit'], select, [role='button'] {
+    cursor: url('/icons/cursor-paw-press.svg') 12 12, pointer !important;
+  }
+}
+
+/* Lenis Smooth Scroll Integration */
+html.lenis, html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+.lenis.lenis-scrolling iframe {
+  pointer-events: none;
+}
+
+/* Global Base */
+body {
+  background-color: var(--color-milk);
+  color: var(--color-cocoa);
+  font-family: var(--font-figtree), ui-sans-serif, system-ui, sans-serif;
+  overflow-x: clip;
+  overflow-y: visible;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Button Typography */
+.btn-primary {
+  color: var(--color-milk) !important;
+}
+.btn-whatsapp {
+  color: #fff !important;
+}
+.tp-night__cta,
+.tp-home__ghost,
+.tp-dusk .btn-ghost,
+.tp-cta .btn-ghost {
+  color: var(--color-milk) !important;
+}
+
+/* Keyframe Animations */
+@keyframes tp-tag-swing {
+  0% {
+    rotate: -7deg;
+  }
+  50% {
+    rotate: 2deg;
+  }
+  100% {
+    rotate: 0deg;
+  }
+}
+
+@keyframes tp-tag-nudge {
+  0% {
+    transform: scale(1) rotate(0deg);
+  }
+  50% {
+    transform: scale(1.05) rotate(-3deg);
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+@keyframes tp-plane-bob {
+  0% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-8px) rotate(1.5deg);
+  }
+  100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+}
+
+@keyframes tp-breathe {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.9;
+  }
+  50% {
+    transform: scale(1.04);
+    opacity: 1;
+  }
+}
+
+@keyframes tp-runner-bob {
+  0% { transform: translateY(0px); }
+  100% { transform: translateY(-4px); }
+}
+
+@keyframes tp-runner-wag {
+  0% { rotate: -15deg; }
+  100% { rotate: 20deg; }
+}
+
+@keyframes tp-runner-ear {
+  0% { rotate: -10deg; }
+  100% { rotate: 15deg; }
+}
+
+@keyframes tp-runner-leg-a {
+  0% { rotate: -25deg; }
+  100% { rotate: 25deg; }
+}
+
+@keyframes tp-runner-leg-b {
+  0% { rotate: 25deg; }
+  100% { rotate: -25deg; }
+}
+
+/* Utility classes */
+.tag-swing {
+  animation: tp-tag-swing 1.5s var(--ease-silk) both;
+}
+.tag-swing:hover {
+  animation: tp-tag-nudge 1s var(--ease-silk) both;
+}
+.plane-bob {
+  animation: tp-plane-bob 3.5s ease-in-out infinite;
+}
+.breathe {
+  animation: tp-breathe 3s ease-in-out infinite;
+}
+
+/* Ensure all pup stops maintain exact 300x240 aspect ratio */
+.pup-stop {
+  aspect-ratio: 300 / 240;
+}
+
+/* Ensure all static pup-buddy elements are strictly hidden so no duplicate dogs appear before the movable dog arrives */
+html[data-pup] .pup-stop > .pup-buddy {
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+/* Ensure pup-actor is properly visible and interactable */
+.pup-actor {
+  will-change: transform;
+}

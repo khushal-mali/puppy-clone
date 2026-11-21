@@ -1,0 +1,114 @@
+[
+  {
+    "route": "/",
+    "name": "home",
+    "status_desktop": 200,
+    "status_mobile": 200,
+    "desktop_screenshot": "research/screenshots/desktop/home.png",
+    "mobile_screenshot": "research/screenshots/mobile/home.png"
+  },
+  {
+    "route": "/puppies",
+    "name": "puppies",
+    "status_desktop": 200,
+    "status_mobile": 200,
+    "desktop_screenshot": "research/screenshots/desktop/puppies.png",
+    "mobile_screenshot": "research/screenshots/mobile/puppies.png"
+  },
+  {
+    "route": "/happy-families",
+    "name": "happy-families",
+    "status_desktop": 200,
+    "status_mobile": 200,
+    "desktop_screenshot": "research/screenshots/desktop/happy-families.png",
+    "mobile_screenshot": "research/screenshots/mobile/happy-families.png"
+  },
+  {
+    "route": "/how-it-works",
+    "name": "how-it-works",
+    "status_desktop": 200,
+    "status_mobile": 200,
+    "desktop_screenshot": "research/screenshots/desktop/how-it-works.png",
+    "mobile_screenshot": "research/screenshots/mobile/how-it-works.png"
+  },
+  {
+    "route": "/faq",
+    "name": "faq",
+    "status_desktop": 200,
+    "status_mobile": 200,
+    "desktop_screenshot": "research/screenshots/desktop/faq.png",
+    "mobile_screenshot": "research/screenshots/mobile/faq.png"
+  },
+  {
+    "route": "/contact",
+    "name": "contact",
+    "status_desktop": 200,
+    "status_mobile": 200,
+    "desktop_screenshot": "research/screenshots/desktop/contact.png",
+    "mobile_screenshot": "research/screenshots/mobile/contact.png"
+  },
+  {
+    "route": "/gone-home",
+    "name": "gone-home",
+    "status_desktop": 200,
+    "status_mobile": 200,
+    "desktop_screenshot": "research/screenshots/desktop/gone-home.png",
+    "mobile_screenshot": "research/screenshots/mobile/gone-home.png"
+  },
+  {
+    "route": "/delivery-collection",
+    "name": "delivery-collection",
+    "status_desktop": 404,
+    "status_mobile": 404,
+    "desktop_screenshot": "research/screenshots/desktop/delivery-collection.png",
+    "mobile_screenshot": "research/screenshots/mobile/delivery-collection.png"
+  },
+  {
+    "route": "/puppies/maltipoo-max-male",
+    "name": "puppy-maltipoo-max",
+    "status_desktop": 200,
+    "status_mobile": 200,
+    "desktop_screenshot": "research/screenshots/desktop/puppy-maltipoo-max.png",
+    "mobile_screenshot": "research/screenshots/mobile/puppy-maltipoo-max.png"
+  },
+  {
+    "route": "/puppies/korean-teacup-maltipoo-female",
+    "name": "puppy-korean-maltipoo-female",
+    "status_desktop": 200,
+    "status_mobile": 200,
+    "desktop_screenshot": "research/screenshots/desktop/puppy-korean-maltipoo-female.png",
+    "mobile_screenshot": "research/screenshots/mobile/puppy-korean-maltipoo-female.png"
+  },
+  {
+    "route": "/puppies/copper-male",
+    "name": "puppy-copper-male",
+    "status_desktop": 200,
+    "status_mobile": 200,
+    "desktop_screenshot": "research/screenshots/desktop/puppy-copper-male.png",
+    "mobile_screenshot": "research/screenshots/mobile/puppy-copper-male.png"
+  },
+  {
+    "route": "/puppies/poodle-leo-male",
+    "name": "puppy-poodle-leo",
+    "status_desktop": 200,
+    "status_mobile": 200,
+    "desktop_screenshot": "research/screenshots/desktop/puppy-poodle-leo.png",
+    "mobile_screenshot": "research/screenshots/mobile/puppy-poodle-leo.png"
+  },
+  {
+    "route": "/puppies/blue-marle-pomeranian",
+    "name": "puppy-blue-marle-pomeranian",
+    "status_desktop": 200,
+    "status_mobile": 200,
+    "desktop_screenshot": "research/screenshots/desktop/puppy-blue-marle-pomeranian.png",
+    "mobile_screenshot": "research/screenshots/mobile/puppy-blue-marle-pomeranian.png"
+  },
+  {
+    "route": "/puppies/bichon-bailey-boy",
+    "name": "puppy-bichon-bailey",
+    "status_desktop": 200,
+    "status_mobile": 200,
+    "desktop_screenshot": "research/screenshots/desktop/puppy-bichon-bailey.png",
+    "mobile_screenshot": "research/screenshots/mobile/puppy-bichon-bailey.png"
+  }
+]
