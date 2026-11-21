@@ -1,9 +1,20 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
+
+const PUPPY_PHRASES = [
+  'woof woof!',
+  'I like you!',
+  'achoo!',
+  'play with me!',
+  'treat, please?',
+  'boing!',
+  'wheee!',
+  'hm?',
+];
 
 const TWINKLE_STARS = [
   { left: '6%', top: '18%', width: 12.6, delay: '0.00s' },
@@ -21,6 +32,96 @@ export default function Footer() {
   const pathname = usePathname();
   const isHome = pathname === '/';
   const [isTeddyHovered, setIsTeddyHovered] = useState(false);
+  const [bubbleText, setBubbleText] = useState('woof woof!');
+  const [bubbleShow, setBubbleShow] = useState(false);
+  const bubbleTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const phraseIdxRef = useRef(0);
+  const buddyRef = useRef<HTMLDivElement>(null);
+  const tapCountRef = useRef(0);
+  const lastTapTimeRef = useRef(0);
+
+  useEffect(() => {
+    return () => {
+      if (bubbleTimerRef.current) clearTimeout(bubbleTimerRef.current);
+    };
+  }, []);
+
+  const spawnHearts = () => {
+    const container = buddyRef.current;
+    if (!container) return;
+
+    const x = container.clientWidth * 0.71;
+    const y = container.clientHeight * 0.38;
+
+    for (let r = 0; r < 6; r++) {
+      const s = document.createElement('span');
+      s.className = 'pup-heart z-40';
+      s.textContent = '♥';
+      s.style.left = `${x}px`;
+      s.style.top = `${y}px`;
+      container.append(s);
+
+      const driftX = (Math.random() - 0.5) * 90;
+      const driftY = -70 - 60 * Math.random();
+
+      if (typeof s.animate === 'function') {
+        const anim = s.animate(
+          [
+            { transform: 'translate(-50%, 0) scale(0.4)', opacity: 0 },
+            { opacity: 1, offset: 0.2 },
+            {
+              transform: `translate(calc(-50% + ${driftX.toFixed(0)}px), ${driftY.toFixed(0)}px) scale(1.15)`,
+              opacity: 0,
+            },
+          ],
+          {
+            duration: 1150 + 110 * r,
+            delay: 80 * r,
+            easing: 'cubic-bezier(.2,.7,.3,1)',
+            fill: 'backwards',
+          }
+        );
+        anim.finished.then(
+          () => s.remove(),
+          () => s.remove()
+        );
+      } else {
+        setTimeout(() => s.remove(), 1500);
+      }
+    }
+  };
+
+  const handlePuppyClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (bubbleTimerRef.current) {
+      clearTimeout(bubbleTimerRef.current);
+    }
+
+    const now = Date.now();
+    if (now - lastTapTimeRef.current < 850) {
+      tapCountRef.current += 1;
+    } else {
+      tapCountRef.current = 1;
+    }
+    lastTapTimeRef.current = now;
+
+    if (tapCountRef.current >= 3) {
+      // Tap 3+ times continuously triggers love hearts and "I like you!"
+      spawnHearts();
+      setBubbleText('I like you!');
+      setBubbleShow(true);
+    } else {
+      const phrase = PUPPY_PHRASES[phraseIdxRef.current % PUPPY_PHRASES.length];
+      phraseIdxRef.current += 1;
+      setBubbleText(phrase);
+      setBubbleShow(true);
+    }
+
+    bubbleTimerRef.current = setTimeout(() => {
+      setBubbleShow(false);
+      tapCountRef.current = 0;
+    }, 1800);
+  };
 
   return (
     <footer className="tp-footer relative pb-[calc(var(--bar-h,0px)+2rem)] text-milk md:pb-10">
@@ -87,11 +188,12 @@ export default function Footer() {
         {/* Woven Basket with Snug Sleeping Teddy */}
         <div className="order-last md:order-none md:col-span-5 md:col-start-1 md:row-start-2">
           <div
-            className="tp-basket relative cursor-pointer group"
+            className="tp-basket relative group"
             onMouseEnter={() => setIsTeddyHovered(true)}
             onMouseLeave={() => setIsTeddyHovered(false)}
             onTouchStart={() => setIsTeddyHovered(true)}
             onTouchEnd={() => setIsTeddyHovered(false)}
+            onClick={handlePuppyClick}
           >
             {/* Basket Back Rim & Shadow */}
             <svg aria-hidden="true" className="tp-basket__back" viewBox="0 0 300 240">
@@ -111,9 +213,11 @@ export default function Footer() {
               {...(isHome ? { 'data-pup-stop': 'true' } : {})}
               onMouseEnter={() => setIsTeddyHovered(true)}
               onMouseLeave={() => setIsTeddyHovered(false)}
+              onClick={handlePuppyClick}
             >
               <div
-                className="pup-buddy"
+                ref={buddyRef}
+                className="pup-buddy cursor-pointer"
                 data-facing="right"
                 style={{ visibility: 'visible', opacity: 1, pointerEvents: 'auto' }}
               >
@@ -184,7 +288,7 @@ export default function Footer() {
                         data-p="eyes"
                         transform="translate(0 0)"
                         className="transition-opacity duration-150 group-hover:opacity-0"
-                        style={isTeddyHovered ? { opacity: 0 } : undefined}
+                        style={isTeddyHovered || bubbleShow ? { opacity: 0 } : undefined}
                       >
                         <g data-p="open" opacity="1">
                           <g data-p="blink" transform="translate(0 0) scale(1 1)">
@@ -202,7 +306,7 @@ export default function Footer() {
                         data-p="happy"
                         fill="none"
                         className="transition-opacity duration-150 group-hover:opacity-100"
-                        style={isTeddyHovered ? { opacity: 1 } : undefined}
+                        style={isTeddyHovered || bubbleShow ? { opacity: 1 } : undefined}
                         stroke="#2a170e"
                         strokeLinecap="round"
                         strokeLinejoin="round"
@@ -211,7 +315,15 @@ export default function Footer() {
                       <path d="M186.5 97 Q194 103.5 201.5 97 M222.5 97 Q230 103.5 237.5 97" data-p="shut" fill="none" opacity="0" stroke="#2a170e" strokeLinecap="round" strokeLinejoin="round" strokeWidth="3.4" />
                       <path d="M204.5 111.5 Q212 107.2 219.5 111.5 Q218.2 118.4 212 120 Q205.8 118.4 204.5 111.5 Z" fill="#2a170e" />
                       <path d="M212 120 V124.5 M212 124.5 Q207.2 129.6 202.8 125.2 M212 124.5 Q216.8 129.6 221.2 125.2" fill="none" stroke="#2a170e" strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" />
-                      <path d="M207.6 127.4 Q212 136.6 216.4 127.4 Z" data-p="tongue" fill="#e98c8c" opacity="0" stroke="#2a170e" strokeLinejoin="round" strokeWidth="2.2" />
+                      <path
+                        d="M207.6 127.4 Q212 136.6 216.4 127.4 Z"
+                        data-p="tongue"
+                        fill="#e98c8c"
+                        opacity={bubbleShow ? 1 : 0}
+                        stroke="#2a170e"
+                        strokeLinejoin="round"
+                        strokeWidth="2.2"
+                      />
                       <g data-p="mouth" opacity="0">
                         <path d="M203 126 Q212 122 221 126 Q219 138 212 139 Q205 138 203 126 Z" fill="#6b2a1c" stroke="#2a170e" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.6" />
                         <path d="M206.5 133.5 Q212 130 217.5 133.5 Q215 138 212 138 Q209 138 206.5 133.5 Z" fill="#e98c8c" />
@@ -224,6 +336,13 @@ export default function Footer() {
                     </g>
                   </g>
                 </svg>
+                <span
+                  aria-hidden="true"
+                  className="pup-bubble pointer-events-none select-none z-30"
+                  data-show={bubbleShow ? 'true' : 'false'}
+                >
+                  {bubbleText}
+                </span>
               </div>
             </div>
 
