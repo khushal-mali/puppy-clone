@@ -2,7 +2,7 @@ import React from 'react';
 
 export default function TeddySelfPortrait() {
   return (
-    <div className="tp-sketchbook__self" data-armed="true" data-reveal="true" data-revealed="true">
+    <div className="tp-sketchbook__self" data-armed="true" data-reveal="true">
       <div className="pup-buddy" data-facing="left" data-live="">
         <svg aria-label="Teddy, the TeddyPups puppy" focusable="false" role="img" style={{ overflow: 'visible' }} viewBox="0 0 300 240">
 <g data-p="root" transform="translate(0.0 0) translate(150 0) scale(-1.000 1) translate(-150 0)">

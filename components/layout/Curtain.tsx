@@ -23,10 +23,18 @@ export default function Curtain() {
 
   // Initial intro animation on mount
   useEffect(() => {
+    const arriveTimer = setTimeout(() => {
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('tp:arrived'));
+      }
+    }, 560);
     const timer = setTimeout(() => {
       setCurtainState('idle');
     }, 1050);
-    return () => clearTimeout(timer);
+    return () => {
+      clearTimeout(arriveTimer);
+      clearTimeout(timer);
+    };
   }, []);
 
   // Listen for route changes when navigating
@@ -36,6 +44,9 @@ export default function Curtain() {
       window.scrollTo(0, 0);
       const timer = setTimeout(() => {
         setCurtainState('lifting');
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new CustomEvent('tp:arrived'));
+        }
         const liftTimer = setTimeout(() => {
           setCurtainState('idle');
           isNavigatingRef.current = false;

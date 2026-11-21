@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import TeddySelfPortrait from './TeddySelfPortrait';
 import { AVAILABLE_PUPPIES, GONE_HOME_PUPPIES } from './puppyCardsData';
@@ -22,6 +22,101 @@ const FILTER_GROUPS = [
 
 export default function PuppiesClient() {
   const [activeFilter, setActiveFilter] = useState<string>('Everywhere');
+  const pageRef = useRef<HTMLDivElement>(null);
+  const mountTime = useRef(Date.now());
+
+  useEffect(() => {
+    const root = pageRef.current;
+    if (!root) return;
+
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      root.querySelectorAll<HTMLElement>('[data-reveal]').forEach((el) => {
+        el.dataset.revealed = 'true';
+      });
+      return;
+    }
+
+    const curtainDown = () => {
+      const curtain = document.querySelector('.tp-curtain');
+      if (!curtain) return false;
+      const state = curtain.getAttribute('data-state');
+      if (state === 'intro') {
+        return Date.now() - mountTime.current < 560;
+      }
+      return state === 'covering' || state === 'covered' || state === 'snap';
+    };
+
+    const pendingSet = new Set<HTMLElement>();
+
+    const revealEl = (el: HTMLElement) => {
+      el.dataset.revealed = 'true';
+      observer.unobserve(el);
+    };
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue;
+          const el = entry.target as HTMLElement;
+          if (curtainDown()) {
+            pendingSet.add(el);
+          } else {
+            revealEl(el);
+          }
+        }
+      },
+      {
+        rootMargin: '0px 0px -6% 0px',
+        threshold: 0.08,
+      }
+    );
+
+    const armAndObserve = (el: HTMLElement) => {
+      if (el.dataset.revealed === 'true') return;
+      el.dataset.armed = 'true';
+      const rect = el.getBoundingClientRect();
+      if (rect.top < window.innerHeight && rect.bottom > 0 && !curtainDown()) {
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            el.dataset.revealed = 'true';
+          });
+        });
+        return;
+      }
+      observer.observe(el);
+    };
+
+    root.querySelectorAll<HTMLElement>('[data-reveal]:not([data-revealed])').forEach(armAndObserve);
+
+    const mutObserver = new MutationObserver(() => {
+      root.querySelectorAll<HTMLElement>('[data-reveal]:not([data-revealed])').forEach(armAndObserve);
+    });
+    mutObserver.observe(root, { childList: true, subtree: true });
+
+    const flushPending = () => {
+      pendingSet.forEach(revealEl);
+      pendingSet.clear();
+    };
+
+    window.addEventListener('tp:arrived', flushPending);
+
+    let pollTimer: NodeJS.Timeout | null = null;
+    const checkCurtain = () => {
+      if (curtainDown()) {
+        pollTimer = setTimeout(checkCurtain, 200);
+      } else {
+        flushPending();
+      }
+    };
+    pollTimer = setTimeout(checkCurtain, 400);
+
+    return () => {
+      if (pollTimer) clearTimeout(pollTimer);
+      observer.disconnect();
+      mutObserver.disconnect();
+      window.removeEventListener('tp:arrived', flushPending);
+    };
+  }, []);
 
   const handleFilterClick = (opt: string) => {
     if (opt === 'Everywhere' || opt === activeFilter) {
@@ -68,7 +163,7 @@ export default function PuppiesClient() {
   }, [activeFilter]);
 
   return (
-    <div className="tp-page" data-page="pups">
+    <div ref={pageRef} className="tp-page" data-page="pups">
       <section className="tp-sketchbook" aria-labelledby="pups-title">
         <div className="gutter mx-auto max-w-[110rem] pb-24 pt-10 md:pt-16">
           <div className="tp-sketchbook__head">
@@ -77,7 +172,6 @@ export default function PuppiesClient() {
                 className="font-scrawl text-lg text-toffee-ink"
                 data-armed="true"
                 data-reveal="true"
-                data-revealed="true"
               >
                 from Teddy&apos;s sketchbook
               </p>
@@ -85,7 +179,6 @@ export default function PuppiesClient() {
                 className="font-plush text-giant tp-sketchbook__title"
                 data-armed="true"
                 data-reveal="true"
-                data-revealed="true"
                 id="pups-title"
                 style={{
                   fontFamily: 'Fraunces, var(--font-fraunces), serif',
@@ -114,7 +207,6 @@ export default function PuppiesClient() {
                 className="tp-sketchbook__lede text-lede mt-6 max-w-[46ch] text-cocoa-soft"
                 data-armed="true"
                 data-reveal="true"
-                data-revealed="true"
               >
                 Every listing shows real photos of the actual puppy. Open a profile to see them all, then ask us about them on WhatsApp.
               </p>
@@ -162,16 +254,18 @@ export default function PuppiesClient() {
 
               <div>
                 <ul className="tp-sketches mt-8">
-                  {filteredPuppies.map((pup) => (
+                  {filteredPuppies.map((pup, index) => (
                     <li key={pup.slug} style={{ opacity: 1, transform: 'none' }}>
                       <Link
                         href={`/puppies/${pup.slug}`}
                         className="tp-sketch"
                         data-armed="true"
                         data-reveal="true"
-                        data-revealed="true"
                         aria-label={pup.ariaLabel}
-                        style={pup.style as React.CSSProperties}
+                        style={{
+                          ...pup.style,
+                          '--d': `${(index % 8) * 70}ms`,
+                        } as React.CSSProperties}
                       >
                         <span className="tp-sketch__frame">
                           <svg
@@ -270,16 +364,18 @@ export default function PuppiesClient() {
             aria-label="Some puppies who have gone home"
             className="tp-gone-strip__row"
           >
-            {GONE_HOME_PUPPIES.map((pup) => (
+            {GONE_HOME_PUPPIES.map((pup, index) => (
               <li key={pup.slug}>
                 <Link
                   href={`/puppies/${pup.slug}`}
                   className="tp-sketch tp-sketch--small"
                   data-armed="true"
                   data-reveal="true"
-                  data-revealed="true"
                   aria-label={pup.ariaLabel}
-                  style={pup.style as React.CSSProperties}
+                  style={{
+                    ...pup.style,
+                    '--d': `${index * 70}ms`,
+                  } as React.CSSProperties}
                 >
                   <span className="tp-sketch__frame">
                     <svg
