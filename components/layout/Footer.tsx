@@ -1,8 +1,9 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { usePathname } from 'next/navigation';
 
 const TWINKLE_STARS = [
   { left: '6%', top: '18%', width: 12.6, delay: '0.00s' },
@@ -17,6 +18,10 @@ const TWINKLE_STARS = [
 ];
 
 export default function Footer() {
+  const pathname = usePathname();
+  const isHome = pathname === '/';
+  const [isTeddyHovered, setIsTeddyHovered] = useState(false);
+
   return (
     <footer className="tp-footer relative pb-[calc(var(--bar-h,0px)+2rem)] text-milk md:pb-10">
       {/* Background Hill SVG */}
@@ -81,7 +86,11 @@ export default function Footer() {
 
         {/* Woven Basket with Snug Sleeping Teddy */}
         <div className="order-last md:order-none md:col-span-5 md:col-start-1 md:row-start-2">
-          <div className="tp-basket relative">
+          <div
+            className="tp-basket relative cursor-pointer group"
+            onMouseEnter={() => setIsTeddyHovered(true)}
+            onMouseLeave={() => setIsTeddyHovered(false)}
+          >
             {/* Basket Back Rim & Shadow */}
             <svg aria-hidden="true" className="tp-basket__back" viewBox="0 0 300 240">
               <ellipse className="tp-basket__hollow" cx="212" cy="145" rx="96" ry="12" />
@@ -91,13 +100,13 @@ export default function Footer() {
 
             {/* Snug Teddy inside Basket */}
             <div
-              className="pup-stop tp-basket__pup"
+              className={`tp-basket__pup ${isHome ? 'pup-stop' : ''}`}
               data-act="basket"
               data-behind="true"
               data-facing="right"
               data-lane="true"
               data-pose="snug"
-              data-pup-stop="true"
+              {...(isHome ? { 'data-pup-stop': 'true' } : {})}
             >
               <div
                 className="pup-buddy"
@@ -167,7 +176,12 @@ export default function Footer() {
                       <circle cx="181" cy="116" fill="#f9b9a6" opacity="0.85" r="7" />
                       <circle cx="243" cy="116" fill="#f9b9a6" opacity="0.85" r="7" />
                       {/* Eyes with blinking */}
-                      <g data-p="eyes" transform="translate(0 0)">
+                      <g
+                        data-p="eyes"
+                        transform="translate(0 0)"
+                        className="transition-opacity duration-150 group-hover:opacity-0"
+                        style={{ opacity: isTeddyHovered ? 0 : 1 }}
+                      >
                         <g data-p="open" opacity="1">
                           <g data-p="blink" transform="translate(0 0) scale(1 1)">
                             <ellipse cx="194" cy="98" fill="#2a170e" rx="7.4" ry="8.6" />
@@ -179,7 +193,17 @@ export default function Footer() {
                           </g>
                         </g>
                       </g>
-                      <path d="M186.5 101 Q194 91.5 201.5 101 M222.5 101 Q230 91.5 237.5 101" data-p="happy" fill="none" opacity="0" stroke="#2a170e" strokeLinecap="round" strokeLinejoin="round" strokeWidth="3.4" />
+                      <path
+                        d="M186.5 101 Q194 91.5 201.5 101 M222.5 101 Q230 91.5 237.5 101"
+                        data-p="happy"
+                        fill="none"
+                        className="transition-opacity duration-150 group-hover:opacity-100"
+                        style={{ opacity: isTeddyHovered ? 1 : 0 }}
+                        stroke="#2a170e"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="3.4"
+                      />
                       <path d="M186.5 97 Q194 103.5 201.5 97 M222.5 97 Q230 103.5 237.5 97" data-p="shut" fill="none" opacity="0" stroke="#2a170e" strokeLinecap="round" strokeLinejoin="round" strokeWidth="3.4" />
                       <path d="M204.5 111.5 Q212 107.2 219.5 111.5 Q218.2 118.4 212 120 Q205.8 118.4 204.5 111.5 Z" fill="#2a170e" />
                       <path d="M212 120 V124.5 M212 124.5 Q207.2 129.6 202.8 125.2 M212 124.5 Q216.8 129.6 221.2 125.2" fill="none" stroke="#2a170e" strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" />
@@ -208,6 +232,28 @@ export default function Footer() {
               <path className="tp-basket__rim" d="M116 145 A96 12 0 0 0 308 145" />
             </svg>
           </div>
+
+          <style
+            dangerouslySetInnerHTML={{
+              __html: `
+                .tp-basket__pup .pup-buddy {
+                  visibility: visible !important;
+                  opacity: 1 !important;
+                  pointer-events: auto !important;
+                }
+                .tp-basket:hover [data-p="eyes"],
+                .tp-basket:hover [data-p="open"],
+                .tp-basket:hover [data-p="shut"] {
+                  opacity: 0 !important;
+                  animation: none !important;
+                }
+                .tp-basket:hover [data-p="happy"] {
+                  opacity: 1 !important;
+                  display: block !important;
+                }
+              `,
+            }}
+          />
         </div>
 
         {/* Middle Column: Explore Navigation */}

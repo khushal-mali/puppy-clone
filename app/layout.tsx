@@ -59,7 +59,6 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      data-pup="live"
       className={`${fontFraunces.variable} ${fontFigtree.variable} ${fontShantell.variable}`}
     >
       <head>

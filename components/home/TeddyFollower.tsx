@@ -681,6 +681,7 @@ export default function TeddyFollower() {
       window.removeEventListener('resize', handleResize);
       settleTimers.forEach(clearTimeout);
       resizeObserver.disconnect();
+      document.documentElement.removeAttribute('data-pup');
     };
   }, [isHappy]);
 
