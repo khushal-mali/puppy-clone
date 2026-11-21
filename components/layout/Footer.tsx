@@ -232,28 +232,6 @@ export default function Footer() {
               <path className="tp-basket__rim" d="M116 145 A96 12 0 0 0 308 145" />
             </svg>
           </div>
-
-          <style
-            dangerouslySetInnerHTML={{
-              __html: `
-                .tp-basket__pup .pup-buddy {
-                  visibility: visible !important;
-                  opacity: 1 !important;
-                  pointer-events: auto !important;
-                }
-                .tp-basket:hover [data-p="eyes"],
-                .tp-basket:hover [data-p="open"],
-                .tp-basket:hover [data-p="shut"] {
-                  opacity: 0 !important;
-                  animation: none !important;
-                }
-                .tp-basket:hover [data-p="happy"] {
-                  opacity: 1 !important;
-                  display: block !important;
-                }
-              `,
-            }}
-          />
         </div>
 
         {/* Middle Column: Explore Navigation */}

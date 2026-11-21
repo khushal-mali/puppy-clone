@@ -186,3 +186,24 @@ html[data-pup] .pup-stop > .pup-buddy {
 .pup-actor {
   will-change: transform;
 }
+
+/* Ensure basket puppy in footer is always visible on interior pages */
+.tp-basket__pup .pup-buddy {
+  visibility: visible !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+}
+
+/* Hover effect on basket: eyes close into happy arcs (^ ^) */
+.tp-basket:hover [data-p="eyes"],
+.tp-basket:hover [data-p="open"],
+.tp-basket:hover [data-p="shut"] {
+  opacity: 0 !important;
+  animation: none !important;
+}
+
+.tp-basket:hover [data-p="happy"] {
+  opacity: 1 !important;
+  display: block !important;
+}
+
