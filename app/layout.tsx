@@ -4,6 +4,7 @@ import { fontFraunces, fontFigtree, fontShantell } from '@/lib/fonts';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import Curtain from '@/components/layout/Curtain';
+import PawCursor from '@/components/home/PawCursor';
 import SmoothScrollProvider from '@/components/providers/SmoothScrollProvider';
 
 export const metadata: Metadata = {
@@ -67,6 +68,7 @@ export default function RootLayout({
       <body className="bg-milk text-cocoa min-h-screen flex flex-col font-sans selection:bg-honey/30">
         <SmoothScrollProvider>
           <Curtain />
+          <PawCursor />
           <Header />
           <main id="main" className="relative pt-[var(--header-h)] outline-none flex-1">
             {children}
