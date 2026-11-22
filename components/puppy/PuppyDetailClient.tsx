@@ -129,7 +129,6 @@ export default function PuppyDetailClient({
   const [message, setMessage] = useState(
     `Hi! I'd love to know more about ${puppy.name} (${displayBreed}).`
   );
-  const [honeypot, setHoneypot] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSent, setIsSent] = useState(false);
   const [formErrors, setFormErrors] = useState<{ name?: string; phone?: string }>({});
@@ -187,7 +186,6 @@ export default function PuppyDetailClient({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (honeypot) return;
 
     const errors: { name?: string; phone?: string } = {};
     if (!name.trim() || name.trim().length < 2) {
@@ -219,13 +217,6 @@ export default function PuppyDetailClient({
 
     const waLink = `https://wa.me/919898124987?text=${waText}`;
     setSubmittedWaHref(waLink);
-
-    // Call window.open synchronously during user click event to prevent browser popup blockers
-    try {
-      window.open(waLink, '_blank');
-    } catch {
-      // Ignored if window.open fails; the success card provides the direct WhatsApp button
-    }
 
     setTimeout(() => {
       setIsSubmitting(false);
@@ -940,8 +931,7 @@ export default function PuppyDetailClient({
                       name="website"
                       tabIndex={-1}
                       autoComplete="off"
-                      value={honeypot}
-                      onChange={(e) => setHoneypot(e.target.value)}
+                      defaultValue=""
                     />
                   </label>
                 </div>
