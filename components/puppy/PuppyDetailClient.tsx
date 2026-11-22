@@ -132,7 +132,9 @@ export default function PuppyDetailClient({
   const [honeypot, setHoneypot] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSent, setIsSent] = useState(false);
-  const [formError, setFormError] = useState('');
+  const [formErrors, setFormErrors] = useState<{ name?: string; phone?: string }>({});
+  const [hasSubmitted, setHasSubmitted] = useState(false);
+  const [submittedWaHref, setSubmittedWaHref] = useState('');
 
   const nameId = useId();
   const phoneId = useId();
@@ -187,12 +189,23 @@ export default function PuppyDetailClient({
     e.preventDefault();
     if (honeypot) return;
 
-    if (!name.trim() || !phone.trim()) {
-      setFormError('Please enter your name and phone or WhatsApp number.');
+    const errors: { name?: string; phone?: string } = {};
+    if (!name.trim() || name.trim().length < 2) {
+      errors.name = 'Please tell us your name.';
+    }
+    if (!phone.trim() || phone.trim().length < 6) {
+      errors.phone = 'Add a phone or WhatsApp number we can reach, with country code.';
+    }
+
+    if (Object.keys(errors).length > 0) {
+      setFormErrors(errors);
+      setHasSubmitted(true);
+      const firstInvalidId = errors.name ? nameId : phoneId;
+      document.getElementById(firstInvalidId)?.focus();
       return;
     }
 
-    setFormError('');
+    setFormErrors({});
     setIsSubmitting(true);
 
     const waText = encodeURIComponent(
@@ -204,10 +217,19 @@ export default function PuppyDetailClient({
       (message.trim() ? `Note: ${message.trim()}\n` : '')
     );
 
+    const waLink = `https://wa.me/919898124987?text=${waText}`;
+    setSubmittedWaHref(waLink);
+
+    // Call window.open synchronously during user click event to prevent browser popup blockers
+    try {
+      window.open(waLink, '_blank');
+    } catch {
+      // Ignored if window.open fails; the success card provides the direct WhatsApp button
+    }
+
     setTimeout(() => {
       setIsSubmitting(false);
       setIsSent(true);
-      window.open(`https://wa.me/919898124987?text=${waText}`, '_blank');
     }, 400);
   };
 
@@ -762,8 +784,8 @@ export default function PuppyDetailClient({
             {isSent ? (
               <motion.div
                 role="status"
-                initial={{ rotateX: -80, opacity: 0, y: -10 }}
-                animate={{ rotateX: 0, opacity: 1, y: 0 }}
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
                 transition={{ type: 'spring', stiffness: 160, damping: 16 }}
                 className="tp-sent rounded-[2rem] border-[3px] border-cocoa bg-honey p-8 text-center"
               >
@@ -772,12 +794,12 @@ export default function PuppyDetailClient({
                   <path d="M6 10l54 40 54-40" fill="none" stroke="#2a170e" strokeWidth="3" strokeLinejoin="round" />
                   <circle cx="94" cy="62" r="12" fill="#c2622b" stroke="#2a170e" strokeWidth="2.5" />
                 </svg>
-                <p className="font-plush mt-4 text-[2rem]">Letter sent!</p>
+                <p className="font-plush mt-4 text-[2rem]">Message received!</p>
                 <p className="mx-auto mt-2 max-w-[38ch] text-cocoa-soft">
-                  We received your enquiry for {puppy.name}. Opening WhatsApp for instant chat...
+                  Thank you — our team will get back to you promptly. For the quickest reply, message us on WhatsApp.
                 </p>
                 <a
-                  href={waHref}
+                  href={submittedWaHref || waHref}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="btn btn-whatsapp mt-6"
@@ -787,6 +809,12 @@ export default function PuppyDetailClient({
               </motion.div>
             ) : (
               <form onSubmit={handleSubmit} noValidate className="space-y-5">
+                {hasSubmitted && Object.keys(formErrors).length > 0 && (
+                  <p role="alert" className="rounded-2xl bg-blush px-4 py-3 font-semibold text-cocoa">
+                    Please check the highlighted fields.
+                  </p>
+                )}
+
                 <div className="grid gap-5 sm:grid-cols-2">
                   <div>
                     <label htmlFor={nameId} className="block text-[0.95rem] font-semibold">
@@ -800,10 +828,22 @@ export default function PuppyDetailClient({
                       required
                       minLength={2}
                       maxLength={80}
+                      aria-invalid={!!formErrors.name}
+                      aria-describedby={formErrors.name ? `${nameId}-err` : undefined}
                       value={name}
-                      onChange={(e) => setName(e.target.value)}
-                      className="mt-1.5 h-12 w-full rounded-2xl border-2 border-cocoa/60 bg-milk px-4 text-base outline-none transition-[border-color,box-shadow] focus:border-cocoa focus:shadow-[0_0_0_4px_rgb(242_190_107/0.6)]"
+                      onChange={(e) => {
+                        setName(e.target.value);
+                        if (formErrors.name) {
+                          setFormErrors((prev) => ({ ...prev, name: undefined }));
+                        }
+                      }}
+                      className="mt-1.5 h-12 w-full rounded-2xl border-2 border-cocoa/60 bg-milk px-4 text-base outline-none transition-[border-color,box-shadow] focus:border-cocoa focus:shadow-[0_0_0_4px_rgb(242_190_107/0.6)] aria-[invalid=true]:border-[#b3261e]"
                     />
+                    {formErrors.name && (
+                      <p id={`${nameId}-err`} role="alert" className="mt-1 text-sm font-semibold text-[#b3261e]">
+                        {formErrors.name}
+                      </p>
+                    )}
                   </div>
 
                   <div>
@@ -817,13 +857,26 @@ export default function PuppyDetailClient({
                       inputMode="tel"
                       autoComplete="tel"
                       required
+                      aria-invalid={!!formErrors.phone}
+                      aria-describedby={formErrors.phone ? `${phoneId}-err` : `${phoneId}-hint`}
                       value={phone}
-                      onChange={(e) => setPhone(e.target.value)}
-                      className="mt-1.5 h-12 w-full rounded-2xl border-2 border-cocoa/60 bg-milk px-4 text-base outline-none transition-[border-color,box-shadow] focus:border-cocoa focus:shadow-[0_0_0_4px_rgb(242_190_107/0.6)]"
+                      onChange={(e) => {
+                        setPhone(e.target.value);
+                        if (formErrors.phone) {
+                          setFormErrors((prev) => ({ ...prev, phone: undefined }));
+                        }
+                      }}
+                      className="mt-1.5 h-12 w-full rounded-2xl border-2 border-cocoa/60 bg-milk px-4 text-base outline-none transition-[border-color,box-shadow] focus:border-cocoa focus:shadow-[0_0_0_4px_rgb(242_190_107/0.6)] aria-[invalid=true]:border-[#b3261e]"
                     />
-                    <p className="mt-1 text-sm text-cocoa-soft">
-                      With country code, e.g. +971 50 123 4567
-                    </p>
+                    {formErrors.phone ? (
+                      <p id={`${phoneId}-err`} role="alert" className="mt-1 text-sm font-semibold text-[#b3261e]">
+                        {formErrors.phone}
+                      </p>
+                    ) : (
+                      <p id={`${phoneId}-hint`} className="mt-1 text-sm text-cocoa-soft">
+                        With country code, e.g. +971 50 123 4567
+                      </p>
+                    )}
                   </div>
 
                   <div>
@@ -835,9 +888,10 @@ export default function PuppyDetailClient({
                       name="email"
                       type="email"
                       autoComplete="email"
+                      aria-invalid={false}
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      className="mt-1.5 h-12 w-full rounded-2xl border-2 border-cocoa/60 bg-milk px-4 text-base outline-none transition-[border-color,box-shadow] focus:border-cocoa focus:shadow-[0_0_0_4px_rgb(242_190_107/0.6)]"
+                      className="mt-1.5 h-12 w-full rounded-2xl border-2 border-cocoa/60 bg-milk px-4 text-base outline-none transition-[border-color,box-shadow] focus:border-cocoa focus:shadow-[0_0_0_4px_rgb(242_190_107/0.6)] aria-[invalid=true]:border-[#b3261e]"
                     />
                   </div>
 
@@ -851,13 +905,17 @@ export default function PuppyDetailClient({
                       type="text"
                       maxLength={80}
                       autoComplete="address-level2"
+                      aria-invalid={false}
+                      aria-describedby={`${areaId}-hint`}
                       value={area}
                       onChange={(e) => setArea(e.target.value)}
-                      className="mt-1.5 h-12 w-full rounded-2xl border-2 border-cocoa/60 bg-milk px-4 text-base outline-none transition-[border-color,box-shadow] focus:border-cocoa focus:shadow-[0_0_0_4px_rgb(242_190_107/0.6)]"
+                      className="mt-1.5 h-12 w-full rounded-2xl border-2 border-cocoa/60 bg-milk px-4 text-base outline-none transition-[border-color,box-shadow] focus:border-cocoa focus:shadow-[0_0_0_4px_rgb(242_190_107/0.6)] aria-[invalid=true]:border-[#b3261e]"
                     />
-                    <p className="mt-1 text-sm text-cocoa-soft">e.g. Dubai Marina</p>
+                    <p id={`${areaId}-hint`} className="mt-1 text-sm text-cocoa-soft">e.g. Dubai Marina</p>
                   </div>
                 </div>
+
+                <input type="hidden" name="puppyId" value={puppy.slug} />
 
                 <div>
                   <label htmlFor={messageId} className="block text-[0.95rem] font-semibold">
@@ -887,10 +945,6 @@ export default function PuppyDetailClient({
                     />
                   </label>
                 </div>
-
-                {formError && (
-                  <p className="text-sm font-semibold text-[#b3261e]">{formError}</p>
-                )}
 
                 <button
                   type="submit"
