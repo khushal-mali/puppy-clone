@@ -118,6 +118,25 @@ body {
 .tp-post__sent {
   border: 3px solid var(--color-cocoa) !important;
 }
+
+.link-ink {
+  color: var(--color-toffee-ink) !important;
+  text-decoration: underline !important;
+  text-underline-offset: 0.25em !important;
+  text-decoration-thickness: 2px !important;
+  text-decoration-color: #c2622b8c !important;
+  transition: text-decoration-color 0.2s ease;
+}
+.link-ink:hover {
+  text-decoration-color: currentColor !important;
+}
+
+.font-scrawl {
+  font-family: var(--font-shantell), ui-rounded, "Comic Sans MS", cursive !important;
+  font-variation-settings: "INFM" 60, "BNCE" 30 !important;
+  letter-spacing: 0 !important;
+  font-weight: 500 !important;
+}
 .btn-ghost {
   border: 2px solid var(--color-cocoa) !important;
   color: var(--color-cocoa) !important;
