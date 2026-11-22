@@ -126,7 +126,8 @@ const POSES: Record<string, Pose> = {
   settle: { ...BASE_POSE, bodyRot: -5, bodyY: 22, headX: 10, headY: 16, fn: -84, ff: -80, sit: 1, tail: 40, tongue: 1 },
   hop: { ...BASE_POSE, bodyRot: -9, stretch: 1.06, headY: -6, fn: -42, ff: -32, bn: 40, bf: 30, earL: -26, earR: 26, tail: -24, tongue: 1 },
   sniff: { ...BASE_POSE, bodyRot: 7, headX: 16, headY: 32, headRot: 9, tail: -14, fn: 6, ff: 4 },
-  bow: { ...BASE_POSE, bodyRot: 15, bodyY: 2, headX: 14, headY: 30, fn: -58, ff: -52, tail: -32, happy: 1, tongue: 1 },
+  bow: { ...BASE_POSE, bodyRot: 15, bodyY: 2, headX: 14, headY: 30, fn: -73, ff: -67, tail: -32, happy: 1, tongue: 1 },
+  play: { ...BASE_POSE, bodyRot: 15, bodyY: 2, headX: 14, headY: 30, fn: -73, ff: -67, tail: -32, happy: 1, tongue: 1 },
   beg: { ...BASE_POSE, bodyRot: -36, bodyY: -6, headX: -18, headY: -18, sit: 1, fn: -70, ff: -64, tail: 30, happy: 1, tongue: 1 },
 };
 
@@ -259,7 +260,7 @@ class PupEngine {
 
   constructor(svg: SVGSVGElement, poseName = 'sit', facing = 1) {
     this.svg = svg;
-    this.pose = { ...POSES[poseName] };
+    this.pose = { ...(POSES[poseName] || POSES.sit) };
     this.target = this.pose;
     this.facing = facing;
     this.facingTarget = facing;
@@ -271,7 +272,7 @@ class PupEngine {
   }
 
   setPose(p: string | Pose) {
-    this.target = typeof p === 'string' ? POSES[p] : p;
+    this.target = typeof p === 'string' ? (POSES[p] || POSES.sit) : p;
   }
 
   face(dir: number, turnSpeed = 0.07) {

@@ -565,7 +565,7 @@ export default function HowItWorksClient() {
                 </Link>
               </div>
             </div>
-            <PupBuddy pose="play" facing="left" className="mx-auto w-48 md:w-56" />
+            <PupBuddy pose="bow" facing="left" label="Teddy, ready to play" className="mx-auto w-48 md:w-56" />
           </section>
         </div>
       </section>

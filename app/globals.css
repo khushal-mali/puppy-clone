@@ -69,18 +69,36 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* Button Typography */
+/* Button Typography & Styles */
 .btn-primary {
   color: var(--color-milk) !important;
 }
 .btn-whatsapp {
   color: #fff !important;
 }
+.btn-ghost {
+  border: 2px solid var(--color-cocoa) !important;
+  color: var(--color-cocoa) !important;
+  background: transparent !important;
+}
+.btn-ghost:hover {
+  background: var(--color-cocoa) !important;
+  color: var(--color-milk) !important;
+  border-color: var(--color-cocoa) !important;
+}
+.tp-scene[data-tone="dark"] .btn-ghost,
 .tp-night__cta,
 .tp-home__ghost,
 .tp-dusk .btn-ghost,
 .tp-cta .btn-ghost {
+  border-color: var(--color-milk) !important;
   color: var(--color-milk) !important;
+}
+.tp-scene[data-tone="dark"] .btn-ghost:hover,
+.tp-dusk .btn-ghost:hover,
+.tp-cta .btn-ghost:hover {
+  background: var(--color-milk) !important;
+  color: var(--color-cocoa) !important;
 }
 
 /* Keyframe Animations */
