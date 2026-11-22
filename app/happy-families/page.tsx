@@ -1,4 +1,4 @@
-import { HTML_HAPPY_FAMILIES } from '@/data/pageHtml';
+import HappyFamiliesClient from '@/components/happy-families/HappyFamiliesClient';
 
 export const metadata = {
   title: 'Happy families',
@@ -6,10 +6,5 @@ export const metadata = {
 };
 
 export default function HappyFamiliesPage() {
-  return (
-    <div
-      dangerouslySetInnerHTML={{ __html: HTML_HAPPY_FAMILIES }}
-      className="contents"
-    />
-  );
+  return <HappyFamiliesClient />;
 }
