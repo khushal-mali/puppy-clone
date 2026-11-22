@@ -70,11 +70,39 @@ body {
 }
 
 /* Button Typography & Styles */
+.btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-height: 3.25rem !important;
+  padding: 0.85rem 1.8rem !important;
+  border-radius: 9999px !important;
+  font-size: 1.0625rem !important;
+  font-weight: 650 !important;
+  line-height: 1.1 !important;
+  text-decoration: none !important;
+  cursor: pointer;
+  transition: transform 0.35s var(--ease-pounce), background-color 0.25s ease, box-shadow 0.35s var(--ease-silk) !important;
+}
+.btn:active {
+  transform: scale(0.96) !important;
+}
 .btn-primary {
+  background-color: var(--color-toffee-deep) !important;
   color: var(--color-milk) !important;
+  box-shadow: 0 0.5rem 0 -0.15rem var(--color-cocoa) !important;
+}
+.btn-primary:hover {
+  box-shadow: 0 0.7rem 0 -0.15rem var(--color-cocoa) !important;
+  transform: translateY(-2px) rotate(-1deg) !important;
 }
 .btn-whatsapp {
+  background-color: #1f7a4d !important;
   color: #fff !important;
+  box-shadow: 0 0.5rem 0 -0.15rem var(--color-cocoa) !important;
+}
+.btn-whatsapp:hover {
+  transform: translateY(-2px) rotate(1deg) !important;
 }
 .btn-ghost {
   border: 2px solid var(--color-cocoa) !important;
