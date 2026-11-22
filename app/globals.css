@@ -104,6 +104,20 @@ body {
 .btn-whatsapp:hover {
   transform: translateY(-2px) rotate(1deg) !important;
 }
+
+/* Contact Page Styles */
+.tp-shopfront {
+  border: 3px solid var(--color-cocoa) !important;
+}
+.tp-shopfront::before {
+  border-bottom: 3px solid var(--color-cocoa) !important;
+}
+.tp-letter__stamp {
+  border: 3px dashed var(--color-toffee-deep) !important;
+}
+.tp-post__sent {
+  border: 3px solid var(--color-cocoa) !important;
+}
 .btn-ghost {
   border: 2px solid var(--color-cocoa) !important;
   color: var(--color-cocoa) !important;
