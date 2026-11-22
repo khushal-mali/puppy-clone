@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { PUPPIES } from '@/data/puppies';
-import { HTML_PUPPY_PROFILE } from '@/data/pageHtml';
+import PuppyDetailClient from '@/components/puppy/PuppyDetailClient';
 
 export async function generateStaticParams() {
   return PUPPIES.map((puppy) => ({
@@ -49,30 +49,48 @@ export default async function PuppyPage({
     notFound();
   }
 
-  // Render the exact profile template customized for this puppy
-  let html = HTML_PUPPY_PROFILE;
-  if (puppy.slug !== 'maltipoo-max-male') {
-    html = html.replace(/Max/g, puppy.name);
-    html = html.replace(/Maltipoo/g, puppy.breed);
-    html = html.replace(/maltipoo-max-male/g, puppy.slug);
-    if (puppy.images[0]) {
-      html = html.replace(/\/images\/b942a5_4b8cfb8204d24eadaf524332aba1dc15-mv2\.webp/g, puppy.images[0]);
-    }
-    if (puppy.gender) {
-      html = html.replace(/Boy/g, puppy.gender);
-    }
-    if (puppy.age) {
-      html = html.replace(/3 months/g, puppy.age);
-    }
-    if (puppy.location) {
-      html = html.replace(/Imported for you/g, puppy.location);
-    }
+  // Available puppies circular navigation matching original site
+  const availableSlugs = [
+    'maltipoo-max-male',
+    'korean-teacup-maltipoo-female',
+    'korean-teacup-poodle-female',
+    'maltipoo-cavapoo-male',
+    'toy-poodle-male-female',
+    'maltipoo-female-2',
+    'pomeranian-female',
+    'copper-male',
+    'shitzu-female',
+    'shitzu-male',
+    'maltipoo-female-1',
+    'maltipoo-female',
+    'korean-teacup-pomeranian-1',
+    'korean-teacup-pomeranian',
+    'korean-teacup-pomeranian-male',
+  ];
+
+  let prevPuppy: (typeof PUPPIES)[number];
+  let nextPuppy: (typeof PUPPIES)[number];
+
+  const availIdx = availableSlugs.indexOf(slug);
+  if (availIdx !== -1) {
+    const prevSlug =
+      availableSlugs[(availIdx - 1 + availableSlugs.length) % availableSlugs.length];
+    const nextSlug = availableSlugs[(availIdx + 1) % availableSlugs.length];
+    prevPuppy = PUPPIES.find((p) => p.slug === prevSlug) || PUPPIES[0];
+    nextPuppy = PUPPIES.find((p) => p.slug === nextSlug) || PUPPIES[0];
+  } else {
+    const currentIndex = PUPPIES.findIndex((p) => p.slug === slug);
+    prevPuppy = PUPPIES[(currentIndex - 1 + PUPPIES.length) % PUPPIES.length];
+    nextPuppy = PUPPIES[(currentIndex + 1) % PUPPIES.length];
   }
 
   return (
-    <div
-      dangerouslySetInnerHTML={{ __html: html }}
-      className="contents"
-    />
+    <div data-page="pup" className="tp-page">
+      <PuppyDetailClient
+        puppy={puppy}
+        prevPuppy={prevPuppy}
+        nextPuppy={nextPuppy}
+      />
+    </div>
   );
 }
