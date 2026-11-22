@@ -1,11 +1,124 @@
 'use client';
 
-import React, { useState, useMemo, useId } from 'react';
+import React, { useState, useMemo, useId, useRef, useEffect } from 'react';
 import PupBuddy from '@/components/puppy/PupBuddy';
 import { FAQS_DATA, ASK_HREF, type FAQItem } from '@/data/faqData';
 
 const TILTS = [-1.6, 1.2, -0.8, 1.8, -1.2, 0.7, -1.9, 1.4];
 const PINS = ['var(--color-toffee)', 'var(--color-sky-deep)', '#d9a13c', '#c45a6a'];
+
+function RevealScope({
+  children,
+  className,
+  ...rest
+}: {
+  children: React.ReactNode;
+  className?: string;
+  [key: string]: any;
+}) {
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const root = containerRef.current;
+    if (!root) return;
+
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      const revealAll = () => {
+        root.querySelectorAll<HTMLElement>('[data-reveal]:not([data-revealed])').forEach((el) => {
+          el.dataset.revealed = 'true';
+        });
+      };
+      revealAll();
+      const m = new MutationObserver(revealAll);
+      m.observe(root, { childList: true, subtree: true });
+      return () => m.disconnect();
+    }
+
+    const curtainDown = () => {
+      const curtain = document.querySelector('.tp-curtain');
+      if (!curtain) return false;
+      const state = curtain.getAttribute('data-state');
+      return state === 'intro' || state === 'covering' || state === 'covered' || state === 'snap';
+    };
+
+    const pendingSet = new Set<HTMLElement>();
+
+    const revealEl = (el: HTMLElement) => {
+      el.dataset.revealed = 'true';
+      observer.unobserve(el);
+    };
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue;
+          const el = entry.target as HTMLElement;
+          if (curtainDown()) {
+            pendingSet.add(el);
+          } else {
+            revealEl(el);
+          }
+        }
+      },
+      {
+        rootMargin: '0px 0px -6% 0px',
+        threshold: 0.08,
+      }
+    );
+
+    const armAndObserve = (el: HTMLElement) => {
+      if (el.dataset.revealed === 'true') return;
+      el.dataset.armed = 'true';
+      const rect = el.getBoundingClientRect();
+      if (rect.top < window.innerHeight && rect.bottom > 0 && !curtainDown()) {
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            el.dataset.revealed = 'true';
+          });
+        });
+        return;
+      }
+      observer.observe(el);
+    };
+
+    root.querySelectorAll<HTMLElement>('[data-reveal]:not([data-revealed])').forEach(armAndObserve);
+
+    const mutObserver = new MutationObserver(() => {
+      root.querySelectorAll<HTMLElement>('[data-reveal]:not([data-revealed])').forEach(armAndObserve);
+    });
+    mutObserver.observe(root, { childList: true, subtree: true });
+
+    const flushPending = () => {
+      pendingSet.forEach(revealEl);
+      pendingSet.clear();
+    };
+
+    window.addEventListener('tp:arrived', flushPending);
+
+    let pollTimer: NodeJS.Timeout | null = null;
+    const checkCurtain = () => {
+      if (curtainDown()) {
+        pollTimer = setTimeout(checkCurtain, 200);
+      } else {
+        flushPending();
+      }
+    };
+    pollTimer = setTimeout(checkCurtain, 400);
+
+    return () => {
+      if (pollTimer) clearTimeout(pollTimer);
+      observer.disconnect();
+      mutObserver.disconnect();
+      window.removeEventListener('tp:arrived', flushPending);
+    };
+  }, []);
+
+  return (
+    <div ref={containerRef} className={className} {...rest}>
+      {children}
+    </div>
+  );
+}
 
 function HighlightText({ text, query }: { text: string; query: string }) {
   const q = query.trim();
@@ -86,7 +199,7 @@ function NoticeBoard({ faqs, askHref }: NoticeBoardProps) {
       </aside>
 
       {/* Sticky Notes Board */}
-      <div className="tp-notes__board">
+      <RevealScope className="tp-notes__board">
         <ul className="tp-notes__list">
           {filtered.map((item, idx) => {
             const isUnfolded =
@@ -97,7 +210,6 @@ function NoticeBoard({ faqs, askHref }: NoticeBoardProps) {
                 key={item.id}
                 className="tp-note"
                 data-reveal="true"
-                data-revealed="true"
                 data-unfolded={isUnfolded ? '' : undefined}
                 style={
                   {
@@ -159,7 +271,7 @@ function NoticeBoard({ faqs, askHref }: NoticeBoardProps) {
             </p>
           </div>
         )}
-      </div>
+      </RevealScope>
     </div>
   );
 }
