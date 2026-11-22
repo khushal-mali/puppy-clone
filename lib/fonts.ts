@@ -4,6 +4,7 @@ export const fontFraunces = localFont({
   src: '../public/fonts/54fc36028e2bb174-s.p.20jfceqj9zyw9.woff2',
   variable: '--font-fraunces',
   display: 'swap',
+  weight: '100 900',
   fallback: ['Times New Roman', 'Georgia', 'serif'],
 });
 

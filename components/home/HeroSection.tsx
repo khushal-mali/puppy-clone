@@ -409,14 +409,6 @@ export default function HeroSection() {
           <h1
             className="tp-hero__title font-plush"
             id="hero-title"
-            style={{
-              fontFamily: 'Fraunces, var(--font-fraunces), serif',
-              fontWeight: 800,
-              lineHeight: 0.92,
-              letterSpacing: '-0.025em',
-              fontVariationSettings: '"SOFT" 100, "WONK" 1, "opsz" 144',
-              textWrap: 'balance',
-            }}
           >
             <span className="tp-hero__line">Premium teacup</span>
             <span className="tp-hero__line tp-hero__line--2">puppies in Dubai</span>

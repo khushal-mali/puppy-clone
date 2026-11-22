@@ -157,6 +157,37 @@ body {
 }
 
 /* Utility classes */
+.font-plush {
+  font-family: Fraunces, var(--font-fraunces), serif !important;
+  font-weight: 800 !important;
+  line-height: 0.92;
+  letter-spacing: -0.025em;
+  font-variation-settings: "SOFT" 100, "WONK" 1, "opsz" 144 !important;
+  text-wrap: balance;
+}
+
+.font-plush-heading {
+  font-family: Fraunces, var(--font-fraunces), serif !important;
+  font-weight: 800 !important;
+  font-size: clamp(2.6rem, 6.4vw, 6.25rem) !important;
+  line-height: 0.92 !important;
+  letter-spacing: -0.025em !important;
+  font-variation-settings: "SOFT" 100, "WONK" 1, "opsz" 144 !important;
+  text-wrap: balance;
+}
+
+.text-huge {
+  font-size: clamp(2.6rem, 6.4vw, 6.25rem) !important;
+}
+
+.text-giant {
+  font-size: clamp(3.1rem, 9.4vw, 9.75rem) !important;
+}
+
+.text-big {
+  font-size: clamp(2rem, 4.2vw, 4rem) !important;
+}
+
 .tag-swing {
   animation: tp-tag-swing 1.5s var(--ease-silk) both;
 }

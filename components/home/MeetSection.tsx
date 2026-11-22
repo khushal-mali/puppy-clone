@@ -297,7 +297,7 @@ export default function MeetSection() {
           <div className="tp-meet__stage">
             <header className="tp-meet__head gutter">
               <div>
-                <h2 className="font-plush text-huge" id="meet-title">
+                <h2 className="font-plush-heading" id="meet-title">
                   Meet the pups
                 </h2>
                 <p className="text-lede mt-3 max-w-[44ch] text-[var(--ink-soft)]">

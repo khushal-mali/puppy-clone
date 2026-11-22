@@ -16,18 +16,7 @@ export default function CtaSection() {
         style={{ '--sky-top': '#2f1a10', '--sky-bottom': '#24130b' } as React.CSSProperties}
       >
         <div className="tp-home__copy gutter">
-          <h2
-            className="font-plush text-huge"
-            id="cta-title"
-            style={{
-              fontFamily: 'Fraunces, var(--font-fraunces), serif',
-              fontSize: 'clamp(2.6rem, 6.4vw, 6.25rem)',
-              fontWeight: 800,
-              lineHeight: 0.95,
-              letterSpacing: '-0.025em',
-              fontVariationSettings: '"SOFT" 100, "WONK" 1, "opsz" 144',
-            }}
-          >
+          <h2 className="font-plush-heading" id="cta-title">
             Ready to meet your new best friend?
           </h2>
           <p className="tp-home__lede">
