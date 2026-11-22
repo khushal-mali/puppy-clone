@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useId } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { motion, AnimatePresence } from 'framer-motion';
 import type { Puppy } from '@/data/puppies';
 import PupBuddy from '@/components/puppy/PupBuddy';
 
@@ -17,44 +18,54 @@ export default function PuppyDetailClient({
   prevPuppy,
   nextPuppy,
 }: PuppyDetailClientProps) {
-  // Media items (Photo 1 and optional Video 2 or additional images)
-  const defaultImages = puppy.images && puppy.images.length > 0
-    ? puppy.images
-    : ['/images/b942a5_4b8cfb8204d24eadaf524332aba1dc15-mv2.webp'];
-
-  const mediaItems = puppy.slug === 'maltipoo-max-male'
-    ? [
-        {
-          type: 'image' as const,
-          src: defaultImages[0],
-          alt: `${puppy.name}, ${puppy.gender.toLowerCase()} ${puppy.breed} puppy`,
-        },
-        {
-          type: 'video' as const,
-          src: '/images/b942a5_a1fa75c7bf2f4d688ec0ce0344baef67f000.jpg',
-          alt: `${puppy.name}, video 2 of 2`,
-        },
-      ]
-    : defaultImages.map((src, i) => ({
-        type: 'image' as const,
-        src,
-        alt: `${puppy.name}, photo ${i + 1} of ${defaultImages.length}`,
-      }));
-
-  const [activeIndex, setActiveIndex] = useState(0);
-  const [isLightboxOpen, setIsLightboxOpen] = useState(false);
-  const [isPlayingVideo, setIsPlayingVideo] = useState(false);
-  const [scrollProgress, setScrollProgress] = useState(0.08);
-
   const displayBreed =
     puppy.slug === 'maltipoo-max-male' ? 'Maltipoo' : puppy.breed;
   const displayAge =
-    puppy.slug === 'maltipoo-max-male' ? '3 months' : puppy.age;
+    puppy.slug === 'maltipoo-max-male'
+      ? '3 months'
+      : puppy.age === '2-3 months'
+      ? '2 months'
+      : puppy.age;
+
+  // Media items (Photo 1 and optional Video 2 or additional images)
+  const defaultImages =
+    puppy.images && puppy.images.length > 0
+      ? puppy.images
+      : ['/images/b942a5_4b8cfb8204d24eadaf524332aba1dc15-mv2.webp'];
+
+  const mediaItems =
+    puppy.slug === 'maltipoo-max-male'
+      ? [
+          {
+            type: 'image' as const,
+            src: '/images/b942a5_4b8cfb8204d24eadaf524332aba1dc15-mv2.webp',
+            poster: undefined,
+            alt: `${puppy.name}, ${puppy.gender.toLowerCase()} ${displayBreed} puppy`,
+          },
+          {
+            type: 'video' as const,
+            src: '/images/b942a5_a1fa75c7bf2f4d688ec0ce0344baef67.mp4',
+            poster: '/images/b942a5_a1fa75c7bf2f4d688ec0ce0344baef67f000.jpg',
+            alt: `Video of ${puppy.name}, ${puppy.gender.toLowerCase()} ${displayBreed} puppy`,
+          },
+        ]
+      : defaultImages.map((src, i) => ({
+          type: 'image' as const,
+          src,
+          poster: undefined,
+          alt: `${puppy.name}, photo ${i + 1} of ${defaultImages.length}`,
+        }));
+
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [direction, setDirection] = useState(1);
+  const [isLightboxOpen, setIsLightboxOpen] = useState(false);
+  const [scrollProgress, setScrollProgress] = useState(0.08);
 
   // Track ribbon scroll progress
   useEffect(() => {
     const handleScroll = () => {
-      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+      const docHeight =
+        document.documentElement.scrollHeight - window.innerHeight;
       if (docHeight > 0) {
         const p = Math.min(1, Math.max(0.08, window.scrollY / docHeight));
         setScrollProgress(p);
@@ -70,7 +81,7 @@ export default function PuppyDetailClient({
   const [email, setEmail] = useState('');
   const [area, setArea] = useState('');
   const [message, setMessage] = useState(
-    `Hi! I'd love to know more about ${puppy.name} (${puppy.breed}).`
+    `Hi! I'd love to know more about ${puppy.name} (${displayBreed}).`
   );
   const [honeypot, setHoneypot] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -83,31 +94,36 @@ export default function PuppyDetailClient({
   const areaId = useId();
   const messageId = useId();
 
-  // Close lightbox on Escape
+  // Close lightbox on Escape and handle Arrow keys
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         setIsLightboxOpen(false);
       } else if (e.key === 'ArrowLeft') {
-        setActiveIndex((prev) => (prev - 1 + mediaItems.length) % mediaItems.length);
+        handlePrev();
       } else if (e.key === 'ArrowRight') {
-        setActiveIndex((prev) => (prev + 1) % mediaItems.length);
+        handleNext();
       }
     };
     if (isLightboxOpen) {
       window.addEventListener('keydown', handleKeyDown);
     }
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isLightboxOpen, mediaItems.length]);
+  }, [isLightboxOpen, activeIndex, mediaItems.length]);
 
   const handlePrev = () => {
+    setDirection(-1);
     setActiveIndex((prev) => (prev - 1 + mediaItems.length) % mediaItems.length);
-    setIsPlayingVideo(false);
   };
 
   const handleNext = () => {
+    setDirection(1);
     setActiveIndex((prev) => (prev + 1) % mediaItems.length);
-    setIsPlayingVideo(false);
+  };
+
+  const handleSelect = (idx: number) => {
+    setDirection(idx > activeIndex ? 1 : -1);
+    setActiveIndex(idx);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -123,7 +139,7 @@ export default function PuppyDetailClient({
     setIsSubmitting(true);
 
     const waText = encodeURIComponent(
-      `Hi TeddyPups U.A.E.! I'd like to enquire about ${puppy.name} (${puppy.breed}).\n\n` +
+      `Hi TeddyPups U.A.E.! I'd like to enquire about ${puppy.name} (${displayBreed}).\n\n` +
       `Name: ${name.trim()}\n` +
       `Phone: ${phone.trim()}\n` +
       (email.trim() ? `Email: ${email.trim()}\n` : '') +
@@ -139,7 +155,7 @@ export default function PuppyDetailClient({
   };
 
   const waHref = `https://wa.me/919898124987?text=${encodeURIComponent(
-    `Hi TeddyPups U.A.E.! I'm interested in ${puppy.name} (${puppy.breed}). Could you please share more details?`
+    `Hi TeddyPups U.A.E.! I'm interested in ${puppy.name} (${displayBreed}). Could you please share more details?`
   )}`;
 
   const currentMedia = mediaItems[activeIndex] || mediaItems[0];
@@ -209,107 +225,145 @@ export default function PuppyDetailClient({
           {/* Media / Gallery Column */}
           <div className="min-w-0 lg:col-span-7">
             <div>
-              {/* Main Storypage Display */}
+              {/* Main Storypage Display with Framer Motion Page-Turn Effect */}
               <div className="tp-storypage relative aspect-[4/5] md:aspect-[5/6]">
-                <button
-                  type="button"
-                  className="absolute inset-0 block size-full cursor-zoom-in"
-                  aria-label={`Open ${puppy.name}, photo ${activeIndex + 1} of ${mediaItems.length} full screen`}
-                  onClick={() => setIsLightboxOpen(true)}
-                >
-                  <Image
-                    alt={currentMedia.alt}
-                    fill
-                    priority
-                    sizes="(min-width: 1024px) 55vw, 92vw"
-                    src={currentMedia.src}
-                    style={{
-                      objectFit: 'cover',
-                      objectPosition: '53.8% 44.3%',
-                      backgroundColor: '#785838',
+                <AnimatePresence initial={false} custom={direction} mode="popLayout">
+                  <motion.button
+                    key={activeIndex}
+                    type="button"
+                    custom={direction}
+                    className="absolute inset-0 block size-full cursor-zoom-in"
+                    initial={{
+                      clipPath:
+                        direction > 0
+                          ? 'inset(0% 0% 0% 100%)'
+                          : 'inset(0% 100% 0% 0%)',
+                      rotateY: -14 * direction,
+                      transformPerspective: 1400,
                     }}
-                  />
-                  {currentMedia.type === 'video' && (
-                    <span className="absolute inset-0 grid place-items-center bg-cocoa/30 text-3xl text-milk">
-                      ▶
-                    </span>
-                  )}
-                </button>
+                    animate={{
+                      clipPath: 'inset(0% 0% 0% 0%)',
+                      rotateY: 0,
+                    }}
+                    exit={{
+                      opacity: 0.4,
+                      scale: 0.97,
+                    }}
+                    transition={{
+                      duration: 0.7,
+                      ease: [0.22, 1, 0.36, 1],
+                    }}
+                    style={{
+                      transformOrigin: direction > 0 ? '0% 50%' : '100% 50%',
+                    }}
+                    onClick={() => setIsLightboxOpen(true)}
+                    aria-label={`Open ${puppy.name}, ${
+                      currentMedia.type === 'video' ? 'video' : 'photo'
+                    } ${activeIndex + 1} of ${mediaItems.length} full screen`}
+                  >
+                    {currentMedia.type === 'video' ? (
+                      <video
+                        src={currentMedia.src}
+                        poster={currentMedia.poster}
+                        className="size-full object-cover"
+                        muted
+                        loop
+                        playsInline
+                        autoPlay
+                        aria-label={currentMedia.alt}
+                      />
+                    ) : (
+                      <Image
+                        alt={currentMedia.alt}
+                        fill
+                        priority={activeIndex === 0}
+                        sizes="(min-width: 1024px) 55vw, 92vw"
+                        src={currentMedia.src}
+                        style={{
+                          objectFit: 'cover',
+                          objectPosition: '53.8% 44.3%',
+                          backgroundColor: '#785838',
+                        }}
+                      />
+                    )}
+                  </motion.button>
+                </AnimatePresence>
 
                 {/* Left/Right Arrows & Page Counter */}
-                <div className="pointer-events-none absolute inset-x-4 bottom-4 flex justify-between">
-                  <button
-                    type="button"
-                    className="pointer-events-auto grid size-12 place-items-center rounded-full border-2 border-cocoa bg-milk/95 text-xl font-bold transition hover:bg-milk active:scale-95"
-                    aria-label="Previous photo"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handlePrev();
-                    }}
-                  >
-                    ‹
-                  </button>
-                  <span className="self-center rounded-full bg-cocoa/80 px-3 py-1 text-sm font-semibold text-milk">
-                    {activeIndex + 1} / {mediaItems.length}
-                  </span>
-                  <button
-                    type="button"
-                    className="pointer-events-auto grid size-12 place-items-center rounded-full border-2 border-cocoa bg-milk/95 text-xl font-bold transition hover:bg-milk active:scale-95"
-                    aria-label="Next photo"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleNext();
-                    }}
-                  >
-                    ›
-                  </button>
-                </div>
+                {mediaItems.length > 1 && (
+                  <div className="pointer-events-none absolute inset-x-4 bottom-4 flex justify-between z-10">
+                    <button
+                      type="button"
+                      className="pointer-events-auto grid size-12 place-items-center rounded-full border-2 border-cocoa bg-milk/95 text-xl font-bold transition hover:bg-milk active:scale-95"
+                      aria-label="Previous photo"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handlePrev();
+                      }}
+                    >
+                      ‹
+                    </button>
+                    <span className="self-center rounded-full bg-cocoa/80 px-3 py-1 text-sm font-semibold text-milk">
+                      {activeIndex + 1} / {mediaItems.length}
+                    </span>
+                    <button
+                      type="button"
+                      className="pointer-events-auto grid size-12 place-items-center rounded-full border-2 border-cocoa bg-milk/95 text-xl font-bold transition hover:bg-milk active:scale-95"
+                      aria-label="Next photo"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleNext();
+                      }}
+                    >
+                      ›
+                    </button>
+                  </div>
+                )}
               </div>
 
               {/* Thumbnail Strip */}
-              <ul
-                className="mt-3 flex gap-3 overflow-x-auto px-1 pb-2 pt-2 [scrollbar-width:thin]"
-                aria-label={`All photos of ${puppy.name}`}
-              >
-                {mediaItems.map((item, idx) => {
-                  const isActive = idx === activeIndex;
-                  return (
-                    <li key={idx} className="shrink-0">
-                      <button
-                        type="button"
-                        aria-label={`${puppy.name}, ${item.type} ${idx + 1} of ${mediaItems.length}`}
-                        aria-current={isActive ? 'true' : undefined}
-                        onClick={() => {
-                          setActiveIndex(idx);
-                          setIsPlayingVideo(false);
-                        }}
-                        className={`relative block h-24 w-20 overflow-hidden rounded-[0.9rem] border-[3px] transition-transform duration-300 md:h-28 md:w-24 ${
-                          isActive
-                            ? '-rotate-3 -translate-y-1 border-toffee-deep shadow-md'
-                            : 'border-cocoa/30 hover:-rotate-2 hover:border-cocoa'
-                        }`}
-                      >
-                        <Image
-                          alt=""
-                          fill
-                          sizes="96px"
-                          src={item.src}
-                          style={{
-                            objectFit: 'cover',
-                            objectPosition: '53.8% 44.3%',
-                            backgroundColor: '#785838',
-                          }}
-                        />
-                        {item.type === 'video' && (
-                          <span className="absolute inset-0 grid place-items-center bg-cocoa/30 text-lg text-milk">
-                            ▶
-                          </span>
-                        )}
-                      </button>
-                    </li>
-                  );
-                })}
-              </ul>
+              {mediaItems.length > 1 && (
+                <ul
+                  className="mt-3 flex gap-3 overflow-x-auto px-1 pb-2 pt-2 [scrollbar-width:thin]"
+                  aria-label={`All photos of ${puppy.name}`}
+                >
+                  {mediaItems.map((item, idx) => {
+                    const isActive = idx === activeIndex;
+                    return (
+                      <li key={idx} className="shrink-0">
+                        <button
+                          type="button"
+                          aria-label={`${puppy.name}, ${item.type} ${idx + 1} of ${mediaItems.length}`}
+                          aria-current={isActive ? 'true' : undefined}
+                          onClick={() => handleSelect(idx)}
+                          className={`relative block h-24 w-20 overflow-hidden rounded-[0.9rem] border-[3px] transition-transform duration-300 md:h-28 md:w-24 ${
+                            isActive
+                              ? '-rotate-3 -translate-y-1 border-toffee-deep shadow-md'
+                              : 'border-cocoa/30 hover:-rotate-2 hover:border-cocoa'
+                          }`}
+                        >
+                          <Image
+                            alt=""
+                            fill
+                            sizes="96px"
+                            src={item.poster || item.src}
+                            style={{
+                              objectFit: 'cover',
+                              objectPosition: '53.8% 44.3%',
+                              backgroundColor: '#785838',
+                            }}
+                          />
+                          {item.type === 'video' && (
+                            <span className="absolute inset-0 grid place-items-center bg-cocoa/30 text-lg text-milk">
+                              ▶
+                            </span>
+                          )}
+                        </button>
+                      </li>
+                    );
+                  })}
+                </ul>
+              )}
 
               {/* Fullscreen Lightbox Modal */}
               {isLightboxOpen && (
@@ -317,57 +371,77 @@ export default function PuppyDetailClient({
                   role="dialog"
                   aria-modal="true"
                   aria-label={`${puppy.name} photos`}
-                  className="fixed inset-0 z-50 flex items-center justify-center bg-cocoa/95 p-4 text-milk backdrop-blur-sm"
+                  className="fixed inset-0 z-50 flex items-center justify-center bg-cocoa/95 p-0 text-milk backdrop-blur-sm"
                   onClick={() => setIsLightboxOpen(false)}
                 >
-                  <button
-                    type="button"
-                    className="absolute right-6 top-6 z-10 flex size-12 items-center justify-center rounded-full bg-milk/20 text-2xl font-bold text-milk transition hover:bg-milk/30"
-                    aria-label="Close full screen view"
-                    onClick={() => setIsLightboxOpen(false)}
-                  >
-                    ✕
-                  </button>
-
-                  <div
-                    className="relative max-h-[85vh] max-w-[90vw] aspect-[4/5] w-full"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    <Image
-                      alt={currentMedia.alt}
-                      fill
-                      sizes="90vw"
-                      src={currentMedia.src}
-                      style={{ objectFit: 'contain' }}
-                    />
-                  </div>
-
-                  {mediaItems.length > 1 && (
-                    <div className="absolute inset-x-6 top-1/2 flex -translate-y-1/2 justify-between pointer-events-none">
+                  <div className="flex h-full w-full flex-col">
+                    <div className="flex items-center justify-between gap-4 px-6 py-4">
+                      <p className="font-scrawl text-lg">
+                        {puppy.name},{' '}
+                        {currentMedia.type === 'video' ? 'video' : 'photo'}{' '}
+                        {activeIndex + 1} of {mediaItems.length}
+                      </p>
                       <button
                         type="button"
-                        className="pointer-events-auto flex size-14 items-center justify-center rounded-full bg-milk/20 text-3xl font-bold text-milk transition hover:bg-milk/30"
-                        aria-label="Previous photo"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handlePrev();
-                        }}
+                        onClick={() => setIsLightboxOpen(false)}
+                        className="h-11 rounded-full bg-milk px-5 font-semibold text-cocoa transition hover:bg-milk/90"
                       >
-                        ‹
-                      </button>
-                      <button
-                        type="button"
-                        className="pointer-events-auto flex size-14 items-center justify-center rounded-full bg-milk/20 text-3xl font-bold text-milk transition hover:bg-milk/30"
-                        aria-label="Next photo"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleNext();
-                        }}
-                      >
-                        ›
+                        Close
                       </button>
                     </div>
-                  )}
+
+                    <div
+                      className="relative flex-1 flex items-center justify-center p-4 touch-pan-y"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      {currentMedia.type === 'video' ? (
+                        <video
+                          src={currentMedia.src}
+                          poster={currentMedia.poster}
+                          className="max-h-[80vh] max-w-[90vw] object-contain"
+                          controls
+                          autoPlay
+                          loop
+                          playsInline
+                        />
+                      ) : (
+                        <div className="relative h-[80vh] w-[90vw]">
+                          <Image
+                            alt={currentMedia.alt}
+                            fill
+                            sizes="90vw"
+                            src={currentMedia.src}
+                            style={{ objectFit: 'contain' }}
+                          />
+                        </div>
+                      )}
+                    </div>
+
+                    {mediaItems.length > 1 && (
+                      <div className="flex justify-center gap-4 pb-6 pt-2">
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handlePrev();
+                          }}
+                          className="h-12 rounded-full border-2 border-milk px-6 font-semibold transition hover:bg-milk/20"
+                        >
+                          Previous
+                        </button>
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleNext();
+                          }}
+                          className="h-12 rounded-full bg-honey px-6 font-semibold text-cocoa transition hover:bg-honey/90"
+                        >
+                          Next
+                        </button>
+                      </div>
+                    )}
+                  </div>
                 </div>
               )}
             </div>
@@ -376,10 +450,11 @@ export default function PuppyDetailClient({
           {/* Details / Puppy Board Column */}
           <div className="min-w-0 lg:col-span-5">
             <div className="lg:sticky lg:top-[calc(var(--header-h)+5.5rem)]">
-              {/* Puppy Board Tag */}
+              {/* Puppy Board Tag with Swing Animation */}
               <div
                 className="tp-tag tp-board mt-16 !rounded-[2.2rem_2.2rem_2.2rem_0.6rem] !p-7 md:!p-9 lg:mt-20"
                 data-reveal="true"
+                data-revealed="true"
               >
                 <span aria-hidden="true" className="tp-tag__ring" />
 
@@ -408,9 +483,11 @@ export default function PuppyDetailClient({
                 <h1 className="font-plush mt-4 text-[clamp(2.6rem,5vw,4.6rem)]">
                   {puppy.name}
                 </h1>
-                <p className="mt-2 text-lg font-semibold text-cocoa-soft">
-                  {displayBreed}
-                </p>
+                {puppy.name !== displayBreed && (
+                  <p className="mt-2 text-lg font-semibold text-cocoa-soft">
+                    {displayBreed}
+                  </p>
+                )}
 
                 {/* Characteristics Description */}
                 <dl className="mt-7 grid grid-cols-2 gap-x-6 gap-y-4">
@@ -440,7 +517,7 @@ export default function PuppyDetailClient({
                     rel="noopener noreferrer"
                     className="btn btn-whatsapp"
                   >
-                    Ask about {puppy.name} on WhatsApp
+                    Ask about this puppy on WhatsApp
                   </a>
                   <a href={`#enquire-${puppy.slug}`} className="btn btn-ghost">
                     Send an enquiry
@@ -622,124 +699,148 @@ export default function PuppyDetailClient({
           </div>
 
           <div className="lg:col-span-7 lg:col-start-6">
-            <form onSubmit={handleSubmit} noValidate className="space-y-5">
-              <div className="grid gap-5 sm:grid-cols-2">
-                <div>
-                  <label htmlFor={nameId} className="block text-[0.95rem] font-semibold">
-                    Your name<span className="text-toffee-ink"> *</span>
-                  </label>
-                  <input
-                    id={nameId}
-                    name="name"
-                    type="text"
-                    autoComplete="name"
-                    required
-                    minLength={2}
-                    maxLength={80}
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    className="mt-1.5 h-12 w-full rounded-2xl border-2 border-cocoa/60 bg-milk px-4 text-base outline-none transition-[border-color,box-shadow] focus:border-cocoa focus:shadow-[0_0_0_4px_rgb(242_190_107/0.6)]"
-                  />
-                </div>
-
-                <div>
-                  <label htmlFor={phoneId} className="block text-[0.95rem] font-semibold">
-                    Phone or WhatsApp<span className="text-toffee-ink"> *</span>
-                  </label>
-                  <input
-                    id={phoneId}
-                    name="phone"
-                    type="tel"
-                    inputMode="tel"
-                    autoComplete="tel"
-                    required
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    className="mt-1.5 h-12 w-full rounded-2xl border-2 border-cocoa/60 bg-milk px-4 text-base outline-none transition-[border-color,box-shadow] focus:border-cocoa focus:shadow-[0_0_0_4px_rgb(242_190_107/0.6)]"
-                  />
-                  <p className="mt-1 text-sm text-cocoa-soft">
-                    With country code, e.g. +971 50 123 4567
-                  </p>
-                </div>
-
-                <div>
-                  <label htmlFor={emailId} className="block text-[0.95rem] font-semibold">
-                    Email<span className="font-normal text-cocoa-soft"> (optional)</span>
-                  </label>
-                  <input
-                    id={emailId}
-                    name="email"
-                    type="email"
-                    autoComplete="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="mt-1.5 h-12 w-full rounded-2xl border-2 border-cocoa/60 bg-milk px-4 text-base outline-none transition-[border-color,box-shadow] focus:border-cocoa focus:shadow-[0_0_0_4px_rgb(242_190_107/0.6)]"
-                  />
-                </div>
-
-                <div>
-                  <label htmlFor={areaId} className="block text-[0.95rem] font-semibold">
-                    Your area<span className="font-normal text-cocoa-soft"> (optional)</span>
-                  </label>
-                  <input
-                    id={areaId}
-                    name="area"
-                    type="text"
-                    maxLength={80}
-                    autoComplete="address-level2"
-                    value={area}
-                    onChange={(e) => setArea(e.target.value)}
-                    className="mt-1.5 h-12 w-full rounded-2xl border-2 border-cocoa/60 bg-milk px-4 text-base outline-none transition-[border-color,box-shadow] focus:border-cocoa focus:shadow-[0_0_0_4px_rgb(242_190_107/0.6)]"
-                  />
-                  <p className="mt-1 text-sm text-cocoa-soft">e.g. Dubai Marina</p>
-                </div>
-              </div>
-
-              <div>
-                <label htmlFor={messageId} className="block text-[0.95rem] font-semibold">
-                  Message <span className="font-normal text-cocoa-soft">(optional)</span>
-                </label>
-                <textarea
-                  id={messageId}
-                  name="message"
-                  rows={4}
-                  maxLength={2000}
-                  value={message}
-                  onChange={(e) => setMessage(e.target.value)}
-                  className="mt-1.5 w-full rounded-2xl border-2 border-cocoa/60 bg-milk px-4 py-3 text-base outline-none focus:border-cocoa focus:shadow-[0_0_0_4px_rgb(242_190_107/0.6)]"
-                />
-              </div>
-
-              {/* Honeypot field */}
-              <div aria-hidden="true" className="absolute -left-[9999px] h-0 w-0 overflow-hidden">
-                <label>
-                  Website
-                  <input
-                    name="website"
-                    tabIndex={-1}
-                    autoComplete="off"
-                    value={honeypot}
-                    onChange={(e) => setHoneypot(e.target.value)}
-                  />
-                </label>
-              </div>
-
-              {formError && (
-                <p className="text-sm font-semibold text-[#b3261e]">{formError}</p>
-              )}
-
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="btn btn-primary w-full disabled:opacity-70 sm:w-auto"
+            {isSent ? (
+              <motion.div
+                role="status"
+                initial={{ rotateX: -80, opacity: 0, y: -10 }}
+                animate={{ rotateX: 0, opacity: 1, y: 0 }}
+                transition={{ type: 'spring', stiffness: 160, damping: 16 }}
+                className="tp-sent rounded-[2rem] border-[3px] border-cocoa bg-honey p-8 text-center"
               >
-                {isSubmitting
-                  ? 'Posting your enquiry... 💌'
-                  : isSent
-                  ? 'Enquiry sent! Opening WhatsApp... ✨'
-                  : 'Send enquiry'}
-              </button>
-            </form>
+                <svg viewBox="0 0 120 84" className="tp-envelope mx-auto w-32" aria-hidden="true">
+                  <path d="M6 10h108v68H6z" fill="#fffdf8" stroke="#2a170e" strokeWidth="3" strokeLinejoin="round" />
+                  <path d="M6 10l54 40 54-40" fill="none" stroke="#2a170e" strokeWidth="3" strokeLinejoin="round" />
+                  <circle cx="94" cy="62" r="12" fill="#c2622b" stroke="#2a170e" strokeWidth="2.5" />
+                </svg>
+                <p className="font-plush mt-4 text-[2rem]">Letter sent!</p>
+                <p className="mx-auto mt-2 max-w-[38ch] text-cocoa-soft">
+                  We received your enquiry for {puppy.name}. Opening WhatsApp for instant chat...
+                </p>
+                <a
+                  href={waHref}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn btn-whatsapp mt-6"
+                >
+                  WhatsApp us
+                </a>
+              </motion.div>
+            ) : (
+              <form onSubmit={handleSubmit} noValidate className="space-y-5">
+                <div className="grid gap-5 sm:grid-cols-2">
+                  <div>
+                    <label htmlFor={nameId} className="block text-[0.95rem] font-semibold">
+                      Your name<span className="text-toffee-ink"> *</span>
+                    </label>
+                    <input
+                      id={nameId}
+                      name="name"
+                      type="text"
+                      autoComplete="name"
+                      required
+                      minLength={2}
+                      maxLength={80}
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      className="mt-1.5 h-12 w-full rounded-2xl border-2 border-cocoa/60 bg-milk px-4 text-base outline-none transition-[border-color,box-shadow] focus:border-cocoa focus:shadow-[0_0_0_4px_rgb(242_190_107/0.6)]"
+                    />
+                  </div>
+
+                  <div>
+                    <label htmlFor={phoneId} className="block text-[0.95rem] font-semibold">
+                      Phone or WhatsApp<span className="text-toffee-ink"> *</span>
+                    </label>
+                    <input
+                      id={phoneId}
+                      name="phone"
+                      type="tel"
+                      inputMode="tel"
+                      autoComplete="tel"
+                      required
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                      className="mt-1.5 h-12 w-full rounded-2xl border-2 border-cocoa/60 bg-milk px-4 text-base outline-none transition-[border-color,box-shadow] focus:border-cocoa focus:shadow-[0_0_0_4px_rgb(242_190_107/0.6)]"
+                    />
+                    <p className="mt-1 text-sm text-cocoa-soft">
+                      With country code, e.g. +971 50 123 4567
+                    </p>
+                  </div>
+
+                  <div>
+                    <label htmlFor={emailId} className="block text-[0.95rem] font-semibold">
+                      Email<span className="font-normal text-cocoa-soft"> (optional)</span>
+                    </label>
+                    <input
+                      id={emailId}
+                      name="email"
+                      type="email"
+                      autoComplete="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="mt-1.5 h-12 w-full rounded-2xl border-2 border-cocoa/60 bg-milk px-4 text-base outline-none transition-[border-color,box-shadow] focus:border-cocoa focus:shadow-[0_0_0_4px_rgb(242_190_107/0.6)]"
+                    />
+                  </div>
+
+                  <div>
+                    <label htmlFor={areaId} className="block text-[0.95rem] font-semibold">
+                      Your area<span className="font-normal text-cocoa-soft"> (optional)</span>
+                    </label>
+                    <input
+                      id={areaId}
+                      name="area"
+                      type="text"
+                      maxLength={80}
+                      autoComplete="address-level2"
+                      value={area}
+                      onChange={(e) => setArea(e.target.value)}
+                      className="mt-1.5 h-12 w-full rounded-2xl border-2 border-cocoa/60 bg-milk px-4 text-base outline-none transition-[border-color,box-shadow] focus:border-cocoa focus:shadow-[0_0_0_4px_rgb(242_190_107/0.6)]"
+                    />
+                    <p className="mt-1 text-sm text-cocoa-soft">e.g. Dubai Marina</p>
+                  </div>
+                </div>
+
+                <div>
+                  <label htmlFor={messageId} className="block text-[0.95rem] font-semibold">
+                    Message <span className="font-normal text-cocoa-soft">(optional)</span>
+                  </label>
+                  <textarea
+                    id={messageId}
+                    name="message"
+                    rows={4}
+                    maxLength={2000}
+                    value={message}
+                    onChange={(e) => setMessage(e.target.value)}
+                    className="mt-1.5 w-full rounded-2xl border-2 border-cocoa/60 bg-milk px-4 py-3 text-base outline-none focus:border-cocoa focus:shadow-[0_0_0_4px_rgb(242_190_107/0.6)]"
+                  />
+                </div>
+
+                {/* Honeypot field */}
+                <div aria-hidden="true" className="absolute -left-[9999px] h-0 w-0 overflow-hidden">
+                  <label>
+                    Website
+                    <input
+                      name="website"
+                      tabIndex={-1}
+                      autoComplete="off"
+                      value={honeypot}
+                      onChange={(e) => setHoneypot(e.target.value)}
+                    />
+                  </label>
+                </div>
+
+                {formError && (
+                  <p className="text-sm font-semibold text-[#b3261e]">{formError}</p>
+                )}
+
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="btn btn-primary w-full disabled:opacity-70 sm:w-auto"
+                >
+                  {isSubmitting ? 'Posting your enquiry... 💌' : 'Send enquiry'}
+                </button>
+              </form>
+            )}
           </div>
         </section>
 

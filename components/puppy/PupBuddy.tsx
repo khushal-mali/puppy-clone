@@ -717,7 +717,7 @@ export default function PupBuddy({
   return (
     <div
       ref={containerRef}
-      className={`pup-buddy cursor-pointer relative ${className}`}
+      className={`pup-buddy cursor-pointer ${className.includes('absolute') ? '' : 'relative'} ${className}`.trim()}
       data-facing={facing}
       data-live=""
       style={{ visibility: 'visible', opacity: 1, pointerEvents: 'auto', ...style }}
