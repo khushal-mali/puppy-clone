@@ -1,4 +1,4 @@
-import { HTML_HOW_IT_WORKS } from '@/data/pageHtml';
+import HowItWorksClient from '@/components/how-it-works/HowItWorksClient';
 
 export const metadata = {
   title: 'How it works',
@@ -6,10 +6,5 @@ export const metadata = {
 };
 
 export default function HowItWorksPage() {
-  return (
-    <div
-      dangerouslySetInnerHTML={{ __html: HTML_HOW_IT_WORKS }}
-      className="contents"
-    />
-  );
+  return <HowItWorksClient />;
 }
