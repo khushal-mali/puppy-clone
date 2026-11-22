@@ -53,97 +53,100 @@ export default function Header() {
         link.removeAttribute('aria-current');
       }
     });
-  }, [pathname]);
 
-  useEffect(() => {
-    const headerEl = document.getElementById('site-header');
-    if (headerEl) {
-      const menuBtn = headerEl.querySelector<HTMLButtonElement>('button[aria-haspopup="dialog"]');
-      const dialog = headerEl.querySelector<HTMLDialogElement>('dialog');
-      const closeBtn = dialog?.querySelector<HTMLButtonElement>('button');
+    const menuBtn = headerEl.querySelector<HTMLButtonElement>('button[aria-haspopup="dialog"]');
+    const dialog = headerEl.querySelector<HTMLDialogElement>('dialog');
+    const closeBtn = dialog?.querySelector<HTMLButtonElement>('button');
 
-      if (menuBtn && dialog) {
-        menuBtn.addEventListener('click', () => {
-          if (typeof dialog.showModal === 'function') {
-            dialog.showModal();
-          } else {
-            dialog.setAttribute('open', 'true');
-          }
-          setMobileMenuOpen(true);
-        });
+    const handleMenuOpen = () => {
+      if (typeof dialog?.showModal === 'function') {
+        dialog.showModal();
+      } else {
+        dialog?.setAttribute('open', 'true');
       }
+      setMobileMenuOpen(true);
+    };
 
-      if (closeBtn && dialog) {
-        closeBtn.addEventListener('click', () => {
-          if (typeof dialog.close === 'function') {
-            dialog.close();
-          } else {
-            dialog.removeAttribute('open');
-          }
-          setMobileMenuOpen(false);
-        });
+    const handleMenuClose = () => {
+      if (typeof dialog?.close === 'function') {
+        dialog.close();
+      } else {
+        dialog?.removeAttribute('open');
       }
+      setMobileMenuOpen(false);
+    };
 
-      if (dialog) {
-        const dialogLinks = dialog.querySelectorAll('a');
-        dialogLinks.forEach((link) => {
-          link.addEventListener('click', () => {
-            if (typeof dialog.close === 'function') {
-              dialog.close();
-            } else {
-              dialog.removeAttribute('open');
-            }
-            setMobileMenuOpen(false);
-          });
-        });
-      }
-
-      // Handle scroll state on header
-      let prevScrollY = window.scrollY;
-      let ticking = false;
-
-      const updateHeader = () => {
-        const currentScrollY = window.scrollY;
-        headerEl.dataset.scrolled = currentScrollY > 8 ? 'true' : 'false';
-
-        if (dialog?.hasAttribute('open')) {
-          headerEl.dataset.hidden = 'false';
-          prevScrollY = currentScrollY;
-          ticking = false;
-          return;
-        }
-
-        if (currentScrollY <= 50) {
-          headerEl.dataset.hidden = 'false';
-          prevScrollY = currentScrollY;
-        } else if (Math.abs(currentScrollY - prevScrollY) > 6) {
-          headerEl.dataset.hidden = currentScrollY > prevScrollY && currentScrollY > 100 ? 'true' : 'false';
-          prevScrollY = currentScrollY;
-        }
-        ticking = false;
-      };
-
-      const handleScroll = () => {
-        if (!ticking) {
-          ticking = true;
-          requestAnimationFrame(updateHeader);
-        }
-      };
-
-      const handleFocusIn = () => {
-        headerEl.dataset.hidden = 'false';
-      };
-
-      updateHeader();
-      window.addEventListener('scroll', handleScroll, { passive: true });
-      headerEl.addEventListener('focusin', handleFocusIn);
-
-      return () => {
-        window.removeEventListener('scroll', handleScroll);
-        headerEl.removeEventListener('focusin', handleFocusIn);
-      };
+    if (menuBtn && dialog) {
+      menuBtn.addEventListener('click', handleMenuOpen);
     }
-  }, []);
+
+    if (closeBtn && dialog) {
+      closeBtn.addEventListener('click', handleMenuClose);
+    }
+
+    const dialogLinks = dialog?.querySelectorAll('a');
+    dialogLinks?.forEach((link) => {
+      link.addEventListener('click', handleMenuClose);
+    });
+
+    // Handle scroll state on header
+    let prevScrollY = window.scrollY;
+    let ticking = false;
+
+    const updateHeader = () => {
+      const liveHeader = document.getElementById('site-header') || headerEl;
+      if (!liveHeader) {
+        ticking = false;
+        return;
+      }
+
+      const currentDialog = liveHeader.querySelector<HTMLDialogElement>('dialog');
+      if (currentDialog?.hasAttribute('open')) {
+        liveHeader.dataset.hidden = 'false';
+        prevScrollY = window.scrollY;
+        ticking = false;
+        return;
+      }
+
+      const currentScrollY = window.scrollY;
+      liveHeader.dataset.scrolled = currentScrollY > 8 ? 'true' : 'false';
+
+      if (currentScrollY <= 50) {
+        liveHeader.dataset.hidden = 'false';
+        prevScrollY = currentScrollY;
+      } else if (Math.abs(currentScrollY - prevScrollY) > 6) {
+        liveHeader.dataset.hidden = currentScrollY > prevScrollY && currentScrollY > 100 ? 'true' : 'false';
+        prevScrollY = currentScrollY;
+      }
+      ticking = false;
+    };
+
+    const handleScroll = () => {
+      if (!ticking) {
+        ticking = true;
+        requestAnimationFrame(updateHeader);
+      }
+    };
+
+    const handleFocusIn = () => {
+      const liveHeader = document.getElementById('site-header') || headerEl;
+      if (liveHeader) liveHeader.dataset.hidden = 'false';
+    };
+
+    updateHeader();
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    headerEl.addEventListener('focusin', handleFocusIn);
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      headerEl.removeEventListener('focusin', handleFocusIn);
+      menuBtn?.removeEventListener('click', handleMenuOpen);
+      closeBtn?.removeEventListener('click', handleMenuClose);
+      dialogLinks?.forEach((link) => {
+        link.removeEventListener('click', handleMenuClose);
+      });
+    };
+  }, [pathname]);
 
   return (
     <>
