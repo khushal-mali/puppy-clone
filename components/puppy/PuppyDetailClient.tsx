@@ -140,21 +140,32 @@ export default function PuppyDetailClient({
   const areaId = useId();
   const messageId = useId();
 
-  // Close lightbox on Escape and handle Arrow keys
+  // Lock page scroll and handle keyboard navigation when lightbox is open
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        setIsLightboxOpen(false);
-      } else if (e.key === 'ArrowLeft') {
-        handlePrev();
-      } else if (e.key === 'ArrowRight') {
-        handleNext();
-      }
-    };
     if (isLightboxOpen) {
+      const originalBodyOverflow = document.body.style.overflow;
+      const originalHtmlOverflow = document.documentElement.style.overflow;
+      document.body.style.overflow = 'hidden';
+      document.documentElement.style.overflow = 'hidden';
+
+      const handleKeyDown = (e: KeyboardEvent) => {
+        if (e.key === 'Escape') {
+          setIsLightboxOpen(false);
+        } else if (e.key === 'ArrowLeft') {
+          handlePrev();
+        } else if (e.key === 'ArrowRight') {
+          handleNext();
+        }
+      };
+
       window.addEventListener('keydown', handleKeyDown);
+
+      return () => {
+        document.body.style.overflow = originalBodyOverflow;
+        document.documentElement.style.overflow = originalHtmlOverflow;
+        window.removeEventListener('keydown', handleKeyDown);
+      };
     }
-    return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isLightboxOpen, activeIndex, mediaItems.length]);
 
   const handlePrev = () => {
@@ -416,77 +427,81 @@ export default function PuppyDetailClient({
                   role="dialog"
                   aria-modal="true"
                   aria-label={`${puppy.name} photos`}
-                  className="fixed inset-0 z-50 flex items-center justify-center bg-cocoa/95 p-0 text-milk backdrop-blur-sm"
+                  className="fixed inset-0 z-50 m-0 flex h-dvh max-h-none w-screen max-w-none flex-col overflow-hidden bg-cocoa/95 p-0 text-milk backdrop:bg-cocoa/70 backdrop-blur-sm"
                   onClick={() => setIsLightboxOpen(false)}
                 >
-                  <div className="flex h-full w-full flex-col">
-                    <div className="flex items-center justify-between gap-4 px-6 py-4">
-                      <p className="font-scrawl text-lg">
-                        {puppy.name},{' '}
-                        {currentMedia.type === 'video' ? 'video' : 'photo'}{' '}
-                        {activeIndex + 1} of {mediaItems.length}
-                      </p>
-                      <button
-                        type="button"
-                        onClick={() => setIsLightboxOpen(false)}
-                        className="h-11 rounded-full bg-milk px-5 font-semibold text-cocoa transition hover:bg-milk/90"
-                      >
-                        Close
-                      </button>
-                    </div>
-
-                    <div
-                      className="relative flex-1 flex items-center justify-center p-4 touch-pan-y"
-                      onClick={(e) => e.stopPropagation()}
+                  {/* Top Bar */}
+                  <div className="flex shrink-0 items-center justify-between gap-4 px-4 py-3 sm:px-6 sm:py-4">
+                    <p className="font-scrawl text-lg">
+                      {puppy.name},{' '}
+                      {currentMedia.type === 'video' ? 'video' : 'photo'}{' '}
+                      {activeIndex + 1} of {mediaItems.length}
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => setIsLightboxOpen(false)}
+                      className="h-11 rounded-full bg-milk px-5 font-semibold text-cocoa transition hover:bg-milk/90 active:scale-95"
                     >
+                      Close
+                    </button>
+                  </div>
+
+                  {/* Media Content Viewport - Contained strictly within remaining space */}
+                  <div
+                    className="relative flex-1 min-h-0 overflow-hidden"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <div className="absolute inset-0 flex items-center justify-center p-4">
                       {currentMedia.type === 'video' ? (
                         <video
                           src={currentMedia.src}
                           poster={currentMedia.poster}
-                          className="max-h-[80vh] max-w-[90vw] object-contain"
+                          className="h-auto max-h-full w-auto max-w-full rounded-2xl object-contain shadow-2xl"
                           controls
                           autoPlay
                           loop
                           playsInline
                         />
                       ) : (
-                        <div className="relative h-[80vh] w-[90vw]">
+                        <div className="relative h-full w-full">
                           <Image
                             alt={currentMedia.alt}
                             fill
                             sizes="90vw"
                             src={currentMedia.src}
-                            style={{ objectFit: 'contain' }}
+                            className="object-contain"
+                            priority
                           />
                         </div>
                       )}
                     </div>
-
-                    {mediaItems.length > 1 && (
-                      <div className="flex justify-center gap-4 pb-6 pt-2">
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handlePrev();
-                          }}
-                          className="h-12 rounded-full border-2 border-milk px-6 font-semibold transition hover:bg-milk/20"
-                        >
-                          Previous
-                        </button>
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleNext();
-                          }}
-                          className="h-12 rounded-full bg-honey px-6 font-semibold text-cocoa transition hover:bg-honey/90"
-                        >
-                          Next
-                        </button>
-                      </div>
-                    )}
                   </div>
+
+                  {/* Bottom Navigation Buttons */}
+                  {mediaItems.length > 1 && (
+                    <div className="flex shrink-0 justify-center gap-3 pb-[calc(1rem+env(safe-area-inset-bottom))] pt-3">
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handlePrev();
+                        }}
+                        className="h-12 rounded-full border-2 border-milk px-6 font-semibold transition hover:bg-milk/20 active:scale-95"
+                      >
+                        Previous
+                      </button>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleNext();
+                        }}
+                        className="h-12 rounded-full bg-honey px-6 font-semibold text-cocoa transition hover:bg-honey/90 active:scale-95"
+                      >
+                        Next
+                      </button>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
