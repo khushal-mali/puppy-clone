@@ -441,7 +441,7 @@ export default function ContactClient() {
                       Downtown Dubai, United Arab Emirates
                     </p>
                     <a
-                      className="btn btn-ghost mt-6 !bg-milk"
+                      className="btn btn-ghost mt-6 tp-shopfront__maps"
                       href="https://www.instabizweb.com/"
                       rel="noopener noreferrer"
                       target="_blank"

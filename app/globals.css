@@ -147,6 +147,17 @@ body {
   color: var(--color-milk) !important;
   border-color: var(--color-cocoa) !important;
 }
+.tp-shopfront__maps {
+  background-color: var(--color-milk) !important;
+  color: var(--color-cocoa) !important;
+  border: 2px solid var(--color-cocoa) !important;
+  transition: background-color 0.25s ease, color 0.25s ease, border-color 0.25s ease !important;
+}
+.tp-shopfront__maps:hover {
+  background-color: var(--color-toffee-deep) !important;
+  color: var(--color-milk) !important;
+  border-color: var(--color-cocoa) !important;
+}
 .tp-scene[data-tone="dark"] .btn-ghost,
 .tp-night__cta,
 .tp-home__ghost,
