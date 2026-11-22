@@ -7,6 +7,51 @@ import { motion, AnimatePresence } from 'framer-motion';
 import type { Puppy } from '@/data/puppies';
 import PupBuddy from '@/components/puppy/PupBuddy';
 
+const PUPPY_DOMINANT_COLORS: Record<string, string> = {
+  'maltipoo-max-male': '#785838',
+  'korean-teacup-maltipoo-female': '#e8e8e8',
+  'korean-teacup-poodle-female': '#f8d8b8',
+  'maltipoo-cavapoo-male': '#b8a8a8',
+  'toy-poodle-male-female': '#c8c8c8',
+  'maltipoo-female-2': '#080808',
+  'pomeranian-female': '#080808',
+  'copper-male': '#e8d8c8',
+  'shitzu-female': '#383848',
+  'shitzu-male': '#787888',
+  'maltipoo-female-1': '#e8d8c8',
+  'maltipoo-female': '#e8d8c8',
+  'korean-teacup-pomeranian-1': '#d8d8d8',
+  'korean-teacup-pomeranian': '#484848',
+  'korean-teacup-pomeranian-male': '#080808',
+  'pomeranian-ace-boy': '#f8e8e8',
+  'poodle-leo-male': '#f8e8e8',
+  'maltipoo-mia-girl': '#b88878',
+  'maltipoo-sadie-girl': '#f8d8d8',
+  'blue-marle-pomeranian': '#887878',
+  'pomsky-ollie-boy': '#b8c888',
+  'maltipoo-bruno-boy': '#f8f8f8',
+  'maltese-buddy-male': '#d8d8d8',
+  'maltese-charlie-male': '#e8e8e8',
+  'pomeranian-daisy-girl': '#e8e8e8',
+  'pomeranian-bella-female': '#181828',
+  'poodle-teddy-male': '#e8e8e8',
+  'poodle-molly-female': '#c8a898',
+  'pomski-coco-girl': '#f8f8f8',
+  'pomsky-rosie-girl': '#e8d8b8',
+  'pomeranian-leo-boy': '#e8e8e8',
+  'poodle-molly-girl': '#784828',
+  'poodle-rocky-boy': '#f8e8f8',
+  'maltipoo-sophie-girl': '#d8b898',
+  'maltipoo-lola-girl': '#f8e8e8',
+  'pomeranian-rex-boy': '#c8b8b8',
+  'pomsky-finn-male': '#b8b8b8',
+  'maltipoo-zoe-girl': '#f8e8c8',
+  'pomeranian-mimi-girl': '#f8e8e8',
+  'bichon-bailey-boy': '#c8c8c8',
+  puppy: '#182808',
+  maltipo: '#d8d8d8',
+};
+
 interface PuppyDetailClientProps {
   puppy: Puppy;
   prevPuppy: Puppy;
@@ -18,6 +63,7 @@ export default function PuppyDetailClient({
   prevPuppy,
   nextPuppy,
 }: PuppyDetailClientProps) {
+  const dominantColor = PUPPY_DOMINANT_COLORS[puppy.slug] || '#785838';
   const displayBreed =
     puppy.slug === 'maltipoo-max-male' ? 'Maltipoo' : puppy.breed;
   const displayAge =
@@ -164,8 +210,7 @@ export default function PuppyDetailClient({
     <article
       className="tp-storybook"
       style={{
-        background:
-          'linear-gradient(180deg, color-mix(in oklab, #785838 24%, var(--color-milk)) 0, var(--color-milk) 85%)',
+        background: `linear-gradient(180deg, color-mix(in oklab, ${dominantColor} 24%, var(--color-milk)) 0, var(--color-milk) 85%)`,
       }}
     >
       {/* Top Ribbon */}
@@ -282,7 +327,7 @@ export default function PuppyDetailClient({
                         style={{
                           objectFit: 'cover',
                           objectPosition: '53.8% 44.3%',
-                          backgroundColor: '#785838',
+                          backgroundColor: dominantColor,
                         }}
                       />
                     )}
@@ -350,7 +395,7 @@ export default function PuppyDetailClient({
                             style={{
                               objectFit: 'cover',
                               objectPosition: '53.8% 44.3%',
-                              backgroundColor: '#785838',
+                              backgroundColor: dominantColor,
                             }}
                           />
                           {item.type === 'video' && (
