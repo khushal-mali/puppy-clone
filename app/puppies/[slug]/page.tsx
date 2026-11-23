@@ -3,6 +3,8 @@ import { notFound } from 'next/navigation';
 import { PUPPIES } from '@/data/puppies';
 import PuppyDetailClient from '@/components/puppy/PuppyDetailClient';
 
+const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://puppy.instabizweb.com';
+
 export async function generateStaticParams() {
   return PUPPIES.map((puppy) => ({
     slug: puppy.slug,
@@ -23,16 +25,40 @@ export async function generateMetadata({
     };
   }
 
-  const title = `${puppy.name}, ${puppy.breed} puppy | TeddyPups U.A.E.`;
-  const description = `${puppy.name}, a gorgeous ${puppy.breed} (${puppy.gender}, ${puppy.age}) at TeddyPups U.A.E. Dubai showroom. Health certified with international vet passport.`;
+  const title = `${puppy.name} (${puppy.gender}) — ${puppy.breed} Puppy in Dubai`;
+  const description = `${puppy.name} is a ${puppy.age} ${puppy.breed} (${puppy.gender}) available at TeddyPups U.A.E. Dubai showroom. Microchipped, vaccinated, with an official international vet passport.`;
+  const canonicalUrl = `${BASE_URL}/puppies/${puppy.slug}`;
+  const imageUrl = puppy.images[0]
+    ? puppy.images[0].startsWith('http')
+      ? puppy.images[0]
+      : `${BASE_URL}${puppy.images[0]}`
+    : `${BASE_URL}/images/logo.png`;
 
   return {
     title,
     description,
+    alternates: {
+      canonical: canonicalUrl,
+    },
     openGraph: {
-      title,
+      title: `${title} | TeddyPups U.A.E.`,
       description,
-      images: puppy.images[0] ? [{ url: puppy.images[0] }] : [],
+      url: canonicalUrl,
+      type: 'website',
+      images: [
+        {
+          url: imageUrl,
+          width: 1200,
+          height: 630,
+          alt: `${puppy.name} - ${puppy.breed}`,
+        },
+      ],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: `${title} | TeddyPups U.A.E.`,
+      description,
+      images: [imageUrl],
     },
   };
 }
@@ -84,8 +110,64 @@ export default async function PuppyPage({
     nextPuppy = PUPPIES[(currentIndex + 1) % PUPPIES.length];
   }
 
+  const jsonLdProduct = {
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    name: `${puppy.name} — ${puppy.breed}`,
+    description: puppy.description,
+    image: puppy.images.map((img) =>
+      img.startsWith('http') ? img : `${BASE_URL}${img}`
+    ),
+    category: 'Animals & Pet Supplies > Pet Supplies > Dogs',
+    brand: {
+      '@type': 'Brand',
+      name: 'TeddyPups',
+    },
+    offers: {
+      '@type': 'Offer',
+      availability:
+        puppy.status === 'available'
+          ? 'https://schema.org/InStock'
+          : 'https://schema.org/SoldOut',
+      priceCurrency: 'AED',
+      url: `${BASE_URL}/puppies/${puppy.slug}`,
+      itemCondition: 'https://schema.org/NewCondition',
+    },
+    additionalProperty: [
+      {
+        '@type': 'PropertyValue',
+        name: 'Breed',
+        value: puppy.breed,
+      },
+      {
+        '@type': 'PropertyValue',
+        name: 'Gender',
+        value: puppy.gender,
+      },
+      {
+        '@type': 'PropertyValue',
+        name: 'Age',
+        value: puppy.age,
+      },
+      {
+        '@type': 'PropertyValue',
+        name: 'Location',
+        value: puppy.location,
+      },
+      {
+        '@type': 'PropertyValue',
+        name: 'Health Certification',
+        value: 'Verified by Licensed Veterinarian with International Passport',
+      },
+    ],
+  };
+
   return (
     <div data-page="pup" className="tp-page">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdProduct) }}
+      />
       <PuppyDetailClient
         puppy={puppy}
         prevPuppy={prevPuppy}

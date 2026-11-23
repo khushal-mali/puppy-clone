@@ -7,27 +7,66 @@ import Curtain from '@/components/layout/Curtain';
 import PawCursor from '@/components/home/PawCursor';
 import SmoothScrollProvider from '@/components/providers/SmoothScrollProvider';
 
+const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://puppy.instabizweb.com';
+
 export const metadata: Metadata = {
-  metadataBase: new URL('https://puppy.instabizweb.com'),
+  metadataBase: new URL(BASE_URL),
   title: {
     default: 'TeddyPups U.A.E. — Premium teacup puppies in Dubai',
     template: '%s | TeddyPups U.A.E.',
   },
   description:
-    'TeddyPups U.A.E. is a Dubai-based brand specializing in miniature puppies, offering premier teacup Maltipoos, Poodles, Pomeranians and Cavapoos.',
+    'TeddyPups U.A.E. is a Dubai-based boutique specializing in miniature teacup puppies, offering premier teacup Maltipoos, Poodles, Pomeranians, and Cavapoos with certified vet passports.',
+  keywords: [
+    'TeddyPups',
+    'TeddyPups UAE',
+    'teacup puppies Dubai',
+    'teacup maltipoo Dubai',
+    'toy poodle Dubai',
+    'Korean teacup puppies',
+    'Cavapoo Dubai',
+    'Pomeranian Dubai',
+    'ethical puppy breeders UAE',
+    'puppy adoption Dubai',
+    'buy puppy in Dubai',
+    'miniature puppies UAE',
+    'licensed vet passport puppy Dubai',
+  ],
+  authors: [{ name: 'TeddyPups U.A.E.', url: BASE_URL }],
+  creator: 'TeddyPups U.A.E.',
+  publisher: 'TeddyPups U.A.E.',
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
+  },
+  alternates: {
+    canonical: '/',
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
   openGraph: {
     type: 'website',
     locale: 'en_AE',
-    url: 'https://puppy.instabizweb.com',
+    url: BASE_URL,
     siteName: 'TeddyPups U.A.E.',
     title: 'TeddyPups U.A.E. — Premium teacup puppies in Dubai',
     description:
-      'TeddyPups U.A.E. is a Dubai-based brand specializing in miniature puppies, offering premier teacup puppies in Dubai.',
+      'TeddyPups U.A.E. is a Dubai-based brand specializing in miniature puppies, offering premier teacup Maltipoos, Poodles, Pomeranians, and Cavapoos.',
     images: [
       {
         url: '/images/logo.png',
-        width: 128,
-        height: 128,
+        width: 512,
+        height: 512,
         alt: 'TeddyPups U.A.E. Logo',
       },
     ],
@@ -36,12 +75,15 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'TeddyPups U.A.E. — Premium teacup puppies in Dubai',
     description:
-      'TeddyPups U.A.E. is a Dubai-based brand specializing in miniature puppies.',
+      'TeddyPups U.A.E. is a Dubai-based brand specializing in miniature puppies, offering premier teacup Maltipoos, Poodles, Pomeranians, and Cavapoos.',
     images: ['/images/logo.png'],
   },
   icons: {
-    icon: '/images/logo.png',
-    apple: '/images/logo.png',
+    icon: [
+      { url: '/images/logo.png', sizes: '32x32', type: 'image/png' },
+      { url: '/images/logo.png', sizes: '192x192', type: 'image/png' },
+    ],
+    apple: [{ url: '/images/logo.png', sizes: '180x180', type: 'image/png' }],
   },
 };
 
@@ -57,6 +99,61 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const jsonLdOrg = {
+    '@context': 'https://schema.org',
+    '@type': 'PetStore',
+    '@id': `${BASE_URL}/#organization`,
+    name: 'TeddyPups U.A.E.',
+    alternateName: 'TeddyPups Dubai',
+    url: BASE_URL,
+    logo: `${BASE_URL}/images/logo.png`,
+    image: `${BASE_URL}/images/logo.png`,
+    description:
+      'TeddyPups U.A.E. is a premier boutique in Dubai specializing in miniature teacup puppies, including Maltipoos, Poodles, Cavapoos, and Pomeranians with international health passports.',
+    telephone: '+919898124987',
+    priceRange: '$$$$',
+    address: {
+      '@type': 'PostalAddress',
+      addressLocality: 'Downtown Dubai',
+      addressRegion: 'Dubai',
+      addressCountry: 'AE',
+    },
+    geo: {
+      '@type': 'GeoCoordinates',
+      latitude: 25.1972,
+      longitude: 55.2744,
+    },
+    openingHoursSpecification: [
+      {
+        '@type': 'OpeningHoursSpecification',
+        dayOfWeek: [
+          'Monday',
+          'Tuesday',
+          'Wednesday',
+          'Thursday',
+          'Friday',
+          'Saturday',
+          'Sunday',
+        ],
+        opens: '10:00',
+        closes: '21:00',
+      },
+    ],
+    sameAs: ['https://wa.me/919898124987'],
+  };
+
+  const jsonLdWebsite = {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    '@id': `${BASE_URL}/#website`,
+    url: BASE_URL,
+    name: 'TeddyPups U.A.E.',
+    description: 'Premium teacup and miniature puppies in Dubai',
+    publisher: {
+      '@id': `${BASE_URL}/#organization`,
+    },
+  };
+
   return (
     <html
       lang="en"
@@ -64,6 +161,14 @@ export default function RootLayout({
     >
       <head>
         <link rel="stylesheet" href="/original.css" />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdOrg) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdWebsite) }}
+        />
       </head>
       <body className="bg-milk text-cocoa min-h-screen flex flex-col font-sans selection:bg-honey/30">
         <SmoothScrollProvider>
