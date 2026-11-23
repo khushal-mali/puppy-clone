@@ -9,7 +9,7 @@
 
 > **Official Technical Assignment Submission for Blutec AI**  
 > **Candidate:** Khushal Mali  
-> **Email:** [khushalmali8448@gmail.com](mailto:khushalmali8448@gmail.com) | **Phone:** +91 8433515648 | **LinkedIn:** [linkedin.com/in/khushalmali](https://www.linkedin.com/in/khushalmali/)  
+> **Email:** [khushalmali8448@gmail.com](mailto:khushalmali8448@gmail.com) | **LinkedIn:** [linkedin.com/in/khushalmali](https://www.linkedin.com/in/khushalmali/)  
 > **Live Production Website:** [https://puppy-clone.vercel.app/](https://puppy-clone.vercel.app/)  
 > **Reference Website:** [https://puppy.instabizweb.com/](https://puppy.instabizweb.com/)  
 > **Complete Source Code:** [https://github.com/khushal-mali/puppy-clone](https://github.com/khushal-mali/puppy-clone)
@@ -296,7 +296,6 @@ Quality assurance was automated using programmatic test scripts:
 * **Candidate:** Khushal Mali
 * **Position:** Frontend & Full-Stack Engineer
 * **Email:** [khushalmali8448@gmail.com](mailto:khushalmali8448@gmail.com)
-* **Phone:** +91 8433515648
 * **LinkedIn:** [https://www.linkedin.com/in/khushalmali/](https://www.linkedin.com/in/khushalmali/)
 * **GitHub:** [https://github.com/khushal-mali](https://github.com/khushal-mali)
 * **Live Demo:** [https://puppy-clone.vercel.app/](https://puppy-clone.vercel.app/)
