@@ -2,7 +2,7 @@
 
 > **Technical Assignment Submission for Blutec AI**  
 > **Candidate:** Khushal Mali  
-> **Live Demo:** [Deploy Link Pending / Add Vercel URL Here]  
+> **Live Demo:** [https://puppy-clone.vercel.app/](https://puppy-clone.vercel.app/)  
 > **GitHub Repository:** [https://github.com/khushal-mali/puppy-clone](https://github.com/khushal-mali/puppy-clone)  
 > **Reference Website:** [https://puppy.instabizweb.com/](https://puppy.instabizweb.com/)
 
